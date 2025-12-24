@@ -1,0 +1,1398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Classes by Mr. Mithilesh</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3a86ff;
+            --secondary-color: #8338ec;
+            --accent-color: #ff006e;
+            --success-color: #06d6a0;
+            --warning-color: #ffd166;
+            --danger-color: #ef476f;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --gray-color: #6c757d;
+            --border-radius: 12px;
+            --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f7fb;
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header Styles */
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 25px 0;
+            border-radius: var(--border-radius);
+            margin-bottom: 30px;
+            box-shadow: var(--box-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none" opacity="0.1"><path d="M0,0 L100,0 L100,100 Z" fill="white"/></svg>');
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-icon {
+            font-size: 2.8rem;
+            background: white;
+            color: var(--primary-color);
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-text h1 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 2.2rem;
+            margin-bottom: 5px;
+        }
+
+        .logo-text p {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 12px 20px;
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: white;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        /* Navigation */
+        .nav-tabs {
+            display: flex;
+            background: white;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            margin-bottom: 30px;
+            box-shadow: var(--box-shadow);
+        }
+
+        .nav-tab {
+            flex: 1;
+            text-align: center;
+            padding: 20px 10px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+            font-size: 1.1rem;
+            border-bottom: 4px solid transparent;
+        }
+
+        .nav-tab:hover {
+            background-color: #f0f5ff;
+        }
+
+        .nav-tab.active {
+            border-bottom: 4px solid var(--primary-color);
+            color: var(--primary-color);
+            background-color: #f0f5ff;
+        }
+
+        .nav-tab i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+
+        /* Content Sections */
+        .content-section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .section-header h2 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 1.8rem;
+            color: var(--dark-color);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 50px;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2a75ff;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(58, 134, 255, 0.3);
+        }
+
+        .btn-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #05c28e;
+        }
+
+        /* Dashboard */
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--box-shadow);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: white;
+        }
+
+        .stat-icon.students {
+            background: linear-gradient(135deg, #3a86ff, #5a9cff);
+        }
+
+        .stat-icon.attendance {
+            background: linear-gradient(135deg, #06d6a0, #2ae4b3);
+        }
+
+        .stat-icon.performance {
+            background: linear-gradient(135deg, #ffd166, #ffda85);
+        }
+
+        .stat-icon.fees {
+            background: linear-gradient(135deg, #8338ec, #9a56f0);
+        }
+
+        .stat-info h3 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-info p {
+            color: var(--gray-color);
+            font-size: 1rem;
+        }
+
+        /* Students Section */
+        .students-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .student-card {
+            background: white;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+        }
+
+        .student-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        .student-header {
+            padding: 25px;
+            background: linear-gradient(135deg, var(--primary-color), #5a9cff);
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .student-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: white;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            font-weight: 600;
+        }
+
+        .student-info h3 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .student-info p {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+
+        .student-details {
+            padding: 20px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .detail-label {
+            color: var(--gray-color);
+        }
+
+        .detail-value {
+            font-weight: 500;
+        }
+
+        .attendance-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .attendance-present {
+            background-color: rgba(6, 214, 160, 0.2);
+            color: var(--success-color);
+        }
+
+        .attendance-absent {
+            background-color: rgba(239, 71, 111, 0.2);
+            color: var(--danger-color);
+        }
+
+        /* Quizzes Section */
+        .quiz-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .quiz-card {
+            background: white;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--box-shadow);
+        }
+
+        .quiz-header {
+            padding: 25px;
+            background: linear-gradient(135deg, var(--secondary-color), #9a56f0);
+            color: white;
+        }
+
+        .quiz-title {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .quiz-date {
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+
+        .quiz-body {
+            padding: 20px;
+        }
+
+        .quiz-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .quiz-stat {
+            text-align: center;
+        }
+
+        .quiz-stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--secondary-color);
+        }
+
+        .quiz-stat-label {
+            color: var(--gray-color);
+            font-size: 0.9rem;
+        }
+
+        /* Fees Section */
+        .fees-table-container {
+            background: white;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--box-shadow);
+            margin-bottom: 30px;
+        }
+
+        .fees-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .fees-table thead {
+            background-color: #f8f9fa;
+        }
+
+        .fees-table th {
+            padding: 18px 15px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--dark-color);
+            border-bottom: 2px solid #eee;
+        }
+
+        .fees-table tbody tr {
+            border-bottom: 1px solid #eee;
+            transition: var(--transition);
+        }
+
+        .fees-table tbody tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        .fees-table td {
+            padding: 18px 15px;
+        }
+
+        .status-badge {
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .status-paid {
+            background-color: rgba(6, 214, 160, 0.2);
+            color: var(--success-color);
+        }
+
+        .status-pending {
+            background-color: rgba(255, 209, 102, 0.3);
+            color: #e6a700;
+        }
+
+        .status-overdue {
+            background-color: rgba(239, 71, 111, 0.2);
+            color: var(--danger-color);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            display: none;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: var(--border-radius);
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: modalFadeIn 0.3s ease;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-header {
+            padding: 25px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            font-size: 1.5rem;
+            color: var(--dark-color);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray-color);
+            transition: var(--transition);
+        }
+
+        .modal-close:hover {
+            color: var(--danger-color);
+        }
+
+        .modal-body {
+            padding: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark-color);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(58, 134, 255, 0.2);
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .stats-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .students-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 20px;
+            }
+            
+            .nav-tabs {
+                flex-direction: column;
+            }
+            
+            .stats-cards, .students-grid, .quiz-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .fees-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <i class="fas fa-square-root-alt"></i>
+                    </div>
+                    <div class="logo-text">
+                        <h1>Math Classes by Mr. Mithilesh</h1>
+                        <p>Advanced Tuition Management System</p>
+                    </div>
+                </div>
+                <div class="user-info">
+                    <div class="user-avatar">MM</div>
+                    <div>
+                        <h3>Mr. Mithilesh</h3>
+                        <p>Mathematics Teacher</p>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <div class="nav-tab active" data-section="dashboard">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </div>
+            <div class="nav-tab" data-section="students">
+                <i class="fas fa-user-graduate"></i> Students
+            </div>
+            <div class="nav-tab" data-section="attendance">
+                <i class="fas fa-calendar-check"></i> Attendance
+            </div>
+            <div class="nav-tab" data-section="performance">
+                <i class="fas fa-chart-line"></i> Performance
+            </div>
+            <div class="nav-tab" data-section="quizzes">
+                <i class="fas fa-question-circle"></i> Quizzes
+            </div>
+            <div class="nav-tab" data-section="fees">
+                <i class="fas fa-rupee-sign"></i> Fees Collection
+            </div>
+        </div>
+
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="content-section active">
+            <div class="section-header">
+                <h2>Dashboard Overview</h2>
+                <div class="current-date">April 15, 2023</div>
+            </div>
+            
+            <div class="stats-cards">
+                <div class="stat-card">
+                    <div class="stat-icon students">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>24</h3>
+                        <p>Total Students</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon attendance">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>92%</h3>
+                        <p>Today's Attendance</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon performance">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>86%</h3>
+                        <p>Average Performance</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon fees">
+                        <i class="fas fa-rupee-sign"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>₹42,500</h3>
+                        <p>Fees Collected This Month</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section-header">
+                <h2>Recent Activities</h2>
+                <button class="btn btn-primary" id="addActivityBtn">
+                    <i class="fas fa-plus"></i> Add Activity
+                </button>
+            </div>
+            
+            <div class="fees-table-container">
+                <table class="fees-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Activity</th>
+                            <th>Details</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Apr 15, 2023</td>
+                            <td>Weekly Test Conducted</td>
+                            <td>Algebra Test for Grade 10</td>
+                            <td><span class="status-badge status-paid">Completed</span></td>
+                        </tr>
+                        <tr>
+                            <td>Apr 14, 2023</td>
+                            <td>Fees Collected</td>
+                            <td>From Rohan Sharma (₹3,500)</td>
+                            <td><span class="status-badge status-paid">Paid</span></td>
+                        </tr>
+                        <tr>
+                            <td>Apr 13, 2023</td>
+                            <td>Parent Meeting</td>
+                            <td>With Anjali Gupta's parents</td>
+                            <td><span class="status-badge status-paid">Completed</span></td>
+                        </tr>
+                        <tr>
+                            <td>Apr 12, 2023</td>
+                            <td>New Quiz Published</td>
+                            <td>Trigonometry Quiz for Grade 11</td>
+                            <td><span class="status-badge status-pending">Active</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Students Section -->
+        <section id="students" class="content-section">
+            <div class="section-header">
+                <h2>Student Management</h2>
+                <button class="btn btn-primary" id="addStudentBtn">
+                    <i class="fas fa-plus"></i> Add New Student
+                </button>
+            </div>
+            
+            <div class="students-grid" id="studentsContainer">
+                <!-- Student cards will be populated here by JavaScript -->
+            </div>
+        </section>
+
+        <!-- Attendance Section -->
+        <section id="attendance" class="content-section">
+            <div class="section-header">
+                <h2>Attendance Tracking</h2>
+                <div>
+                    <button class="btn btn-primary" id="markAttendanceBtn">
+                        <i class="fas fa-check-circle"></i> Mark Today's Attendance
+                    </button>
+                </div>
+            </div>
+            
+            <div class="fees-table-container">
+                <table class="fees-table">
+                    <thead>
+                        <tr>
+                            <th>Student Name</th>
+                            <th>Class</th>
+                            <th>Apr 15</th>
+                            <th>Apr 14</th>
+                            <th>Apr 13</th>
+                            <th>Apr 12</th>
+                            <th>Attendance %</th>
+                        </tr>
+                    </thead>
+                    <tbody id="attendanceTable">
+                        <!-- Attendance data will be populated here by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Performance Section -->
+        <section id="performance" class="content-section">
+            <div class="section-header">
+                <h2>Student Performance</h2>
+                <button class="btn btn-primary" id="addTestResultBtn">
+                    <i class="fas fa-plus"></i> Add Test Result
+                </button>
+            </div>
+            
+            <div class="fees-table-container">
+                <table class="fees-table">
+                    <thead>
+                        <tr>
+                            <th>Student Name</th>
+                            <th>Class</th>
+                            <th>Weekly Test</th>
+                            <th>Monthly Test</th>
+                            <th>Assignment</th>
+                            <th>Overall %</th>
+                            <th>Grade</th>
+                        </tr>
+                    </thead>
+                    <tbody id="performanceTable">
+                        <!-- Performance data will be populated here by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Quizzes Section -->
+        <section id="quizzes" class="content-section">
+            <div class="section-header">
+                <h2>Quiz Management</h2>
+                <button class="btn btn-primary" id="createQuizBtn">
+                    <i class="fas fa-plus"></i> Create New Quiz
+                </button>
+            </div>
+            
+            <div class="quiz-container" id="quizContainer">
+                <!-- Quiz cards will be populated here by JavaScript -->
+            </div>
+        </section>
+
+        <!-- Fees Section -->
+        <section id="fees" class="content-section">
+            <div class="section-header">
+                <h2>Fees Collection</h2>
+                <button class="btn btn-primary" id="collectFeesBtn">
+                    <i class="fas fa-rupee-sign"></i> Collect Fees
+                </button>
+            </div>
+            
+            <div class="fees-table-container">
+                <table class="fees-table">
+                    <thead>
+                        <tr>
+                            <th>Student Name</th>
+                            <th>Class</th>
+                            <th>Monthly Fees</th>
+                            <th>Due Date</th>
+                            <th>Status</th>
+                            <th>Amount Due</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="feesTable">
+                        <!-- Fees data will be populated here by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <!-- Modal for adding student -->
+    <div class="modal-overlay" id="addStudentModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Add New Student</h3>
+                <button class="modal-close" id="closeStudentModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="addStudentForm">
+                    <div class="form-group">
+                        <label for="studentName">Full Name</label>
+                        <input type="text" id="studentName" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="studentClass">Class/Grade</label>
+                        <select id="studentClass" class="form-control" required>
+                            <option value="">Select Class</option>
+                            <option value="9">Grade 9</option>
+                            <option value="10">Grade 10</option>
+                            <option value="11">Grade 11</option>
+                            <option value="12">Grade 12</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="studentPhone">Phone Number</label>
+                        <input type="tel" id="studentPhone" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="studentEmail">Email Address</label>
+                        <input type="email" id="studentEmail" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="monthlyFees">Monthly Fees (₹)</label>
+                        <input type="number" id="monthlyFees" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Add Student</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for marking attendance -->
+    <div class="modal-overlay" id="attendanceModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Mark Today's Attendance</h3>
+                <button class="modal-close" id="closeAttendanceModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="attendanceList">
+                    <!-- Attendance list will be populated here by JavaScript -->
+                </div>
+                <button class="btn btn-success" id="saveAttendanceBtn" style="width: 100%; margin-top: 20px;">
+                    <i class="fas fa-save"></i> Save Attendance
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for collecting fees -->
+    <div class="modal-overlay" id="feesModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Collect Fees</h3>
+                <button class="modal-close" id="closeFeesModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="collectFeesForm">
+                    <div class="form-group">
+                        <label for="feesStudent">Select Student</label>
+                        <select id="feesStudent" class="form-control" required>
+                            <option value="">Select Student</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="feesAmount">Amount (₹)</label>
+                        <input type="number" id="feesAmount" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="feesMonth">For Month</label>
+                        <select id="feesMonth" class="form-control" required>
+                            <option value="april">April 2023</option>
+                            <option value="march">March 2023</option>
+                            <option value="february">February 2023</option>
+                            <option value="january">January 2023</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="paymentMethod">Payment Method</label>
+                        <select id="paymentMethod" class="form-control" required>
+                            <option value="cash">Cash</option>
+                            <option value="bank_transfer">Bank Transfer</option>
+                            <option value="upi">UPI</option>
+                            <option value="cheque">Cheque</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Collect Fees</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample data for the application
+        const students = [
+            { id: 1, name: "Rohan Sharma", class: "10", attendance: "95%", performance: "92%", fees: "Paid", phone: "9876543210", email: "rohan@example.com", monthlyFees: 3500 },
+            { id: 2, name: "Anjali Gupta", class: "11", attendance: "88%", performance: "85%", fees: "Pending", phone: "9876543211", email: "anjali@example.com", monthlyFees: 4000 },
+            { id: 3, name: "Vikram Singh", class: "9", attendance: "92%", performance: "78%", fees: "Paid", phone: "9876543212", email: "vikram@example.com", monthlyFees: 3000 },
+            { id: 4, name: "Priya Patel", class: "12", attendance: "96%", performance: "94%", fees: "Overdue", phone: "9876543213", email: "priya@example.com", monthlyFees: 4500 },
+            { id: 5, name: "Arun Kumar", class: "10", attendance: "85%", performance: "82%", fees: "Paid", phone: "9876543214", email: "arun@example.com", monthlyFees: 3500 },
+            { id: 6, name: "Sneha Reddy", class: "11", attendance: "90%", performance: "88%", fees: "Pending", phone: "9876543215", email: "sneha@example.com", monthlyFees: 4000 }
+        ];
+
+        const quizzes = [
+            { id: 1, title: "Algebra Basics", class: "9", date: "Apr 10, 2023", participants: 18, avgScore: "82%" },
+            { id: 2, title: "Trigonometry Advanced", class: "11", date: "Apr 12, 2023", participants: 15, avgScore: "76%" },
+            { id: 3, title: "Calculus Introduction", class: "12", date: "Apr 5, 2023", participants: 12, avgScore: "85%" },
+            { id: 4, title: "Geometry Fundamentals", class: "10", date: "Mar 28, 2023", participants: 20, avgScore: "79%" }
+        ];
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            // Navigation functionality
+            const navTabs = document.querySelectorAll('.nav-tab');
+            const contentSections = document.querySelectorAll('.content-section');
+            
+            navTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const sectionId = this.getAttribute('data-section');
+                    
+                    // Update active tab
+                    navTabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Show selected section
+                    contentSections.forEach(section => {
+                        section.classList.remove('active');
+                        if (section.id === sectionId) {
+                            section.classList.add('active');
+                        }
+                    });
+                });
+            });
+
+            // Initialize student cards
+            renderStudentCards();
+            
+            // Initialize attendance table
+            renderAttendanceTable();
+            
+            // Initialize performance table
+            renderPerformanceTable();
+            
+            // Initialize quizzes
+            renderQuizzes();
+            
+            // Initialize fees table
+            renderFeesTable();
+            
+            // Modal functionality
+            setupModals();
+            
+            // Form submission handlers
+            setupFormHandlers();
+        });
+
+        // Render student cards
+        function renderStudentCards() {
+            const container = document.getElementById('studentsContainer');
+            container.innerHTML = '';
+            
+            students.forEach(student => {
+                const firstLetter = student.name.charAt(0);
+                const feesStatusClass = student.fees === "Paid" ? "status-paid" : 
+                                        student.fees === "Pending" ? "status-pending" : "status-overdue";
+                
+                const card = document.createElement('div');
+                card.className = 'student-card';
+                card.innerHTML = `
+                    <div class="student-header">
+                        <div class="student-avatar">${firstLetter}</div>
+                        <div class="student-info">
+                            <h3>${student.name}</h3>
+                            <p>Grade ${student.class}</p>
+                        </div>
+                    </div>
+                    <div class="student-details">
+                        <div class="detail-row">
+                            <span class="detail-label">Attendance</span>
+                            <span class="detail-value">${student.attendance}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Performance</span>
+                            <span class="detail-value">${student.performance}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Fees Status</span>
+                            <span class="status-badge ${feesStatusClass}">${student.fees}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Contact</span>
+                            <span class="detail-value">${student.phone}</span>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Render attendance table
+        function renderAttendanceTable() {
+            const tableBody = document.getElementById('attendanceTable');
+            tableBody.innerHTML = '';
+            
+            students.forEach(student => {
+                const row = document.createElement('tr');
+                
+                // Generate random attendance for the past 4 days
+                const attendanceDays = Array.from({length: 4}, () => {
+                    return Math.random() > 0.2 ? 'P' : 'A';
+                });
+                
+                row.innerHTML = `
+                    <td>${student.name}</td>
+                    <td>Grade ${student.class}</td>
+                    <td><span class="attendance-badge ${attendanceDays[0] === 'P' ? 'attendance-present' : 'attendance-absent'}">${attendanceDays[0]}</span></td>
+                    <td><span class="attendance-badge ${attendanceDays[1] === 'P' ? 'attendance-present' : 'attendance-absent'}">${attendanceDays[1]}</span></td>
+                    <td><span class="attendance-badge ${attendanceDays[2] === 'P' ? 'attendance-present' : 'attendance-absent'}">${attendanceDays[2]}</span></td>
+                    <td><span class="attendance-badge ${attendanceDays[3] === 'P' ? 'attendance-present' : 'attendance-absent'}">${attendanceDays[3]}</span></td>
+                    <td>${student.attendance}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Render performance table
+        function renderPerformanceTable() {
+            const tableBody = document.getElementById('performanceTable');
+            tableBody.innerHTML = '';
+            
+            students.forEach(student => {
+                const weeklyTest = Math.floor(Math.random() * 30) + 70;
+                const monthlyTest = Math.floor(Math.random() * 40) + 60;
+                const assignment = Math.floor(Math.random() * 20) + 80;
+                const overall = Math.round((weeklyTest + monthlyTest + assignment) / 3);
+                const grade = overall >= 90 ? 'A+' : overall >= 80 ? 'A' : overall >= 70 ? 'B' : overall >= 60 ? 'C' : 'D';
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${student.name}</td>
+                    <td>Grade ${student.class}</td>
+                    <td>${weeklyTest}%</td>
+                    <td>${monthlyTest}%</td>
+                    <td>${assignment}%</td>
+                    <td>${overall}%</td>
+                    <td><strong>${grade}</strong></td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Render quizzes
+        function renderQuizzes() {
+            const container = document.getElementById('quizContainer');
+            container.innerHTML = '';
+            
+            quizzes.forEach(quiz => {
+                const card = document.createElement('div');
+                card.className = 'quiz-card';
+                card.innerHTML = `
+                    <div class="quiz-header">
+                        <div class="quiz-title">${quiz.title}</div>
+                        <div class="quiz-date">${quiz.date} | Grade ${quiz.class}</div>
+                    </div>
+                    <div class="quiz-body">
+                        <div class="quiz-stats">
+                            <div class="quiz-stat">
+                                <div class="quiz-stat-value">${quiz.participants}</div>
+                                <div class="quiz-stat-label">Participants</div>
+                            </div>
+                            <div class="quiz-stat">
+                                <div class="quiz-stat-value">${quiz.avgScore}</div>
+                                <div class="quiz-stat-label">Avg. Score</div>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" style="width: 100%;">
+                            <i class="fas fa-eye"></i> View Results
+                        </button>
+                        <button class="btn btn-success" style="width: 100%; margin-top: 10px;">
+                            <i class="fas fa-edit"></i> Edit Quiz
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Render fees table
+        function renderFeesTable() {
+            const tableBody = document.getElementById('feesTable');
+            tableBody.innerHTML = '';
+            
+            students.forEach(student => {
+                const feesStatusClass = student.fees === "Paid" ? "status-paid" : 
+                                        student.fees === "Pending" ? "status-pending" : "status-overdue";
+                
+                const dueDate = new Date();
+                dueDate.setDate(dueDate.getDate() + (student.fees === "Overdue" ? -5 : 10));
+                const formattedDueDate = dueDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${student.name}</td>
+                    <td>Grade ${student.class}</td>
+                    <td>₹${student.monthlyFees}</td>
+                    <td>${formattedDueDate}</td>
+                    <td><span class="status-badge ${feesStatusClass}">${student.fees}</span></td>
+                    <td>${student.fees === "Paid" ? "₹0" : `₹${student.monthlyFees}`}</td>
+                    <td>
+                        <button class="btn btn-primary" style="padding: 8px 15px; font-size: 0.9rem;" onclick="collectFeesForStudent(${student.id})">
+                            <i class="fas fa-rupee-sign"></i> Collect
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Setup modals
+        function setupModals() {
+            // Add student modal
+            const addStudentBtn = document.getElementById('addStudentBtn');
+            const addStudentModal = document.getElementById('addStudentModal');
+            const closeStudentModal = document.getElementById('closeStudentModal');
+            
+            addStudentBtn.addEventListener('click', () => {
+                addStudentModal.classList.add('active');
+            });
+            
+            closeStudentModal.addEventListener('click', () => {
+                addStudentModal.classList.remove('active');
+            });
+            
+            // Mark attendance modal
+            const markAttendanceBtn = document.getElementById('markAttendanceBtn');
+            const attendanceModal = document.getElementById('attendanceModal');
+            const closeAttendanceModal = document.getElementById('closeAttendanceModal');
+            
+            markAttendanceBtn.addEventListener('click', () => {
+                // Populate attendance list
+                const attendanceList = document.getElementById('attendanceList');
+                attendanceList.innerHTML = '';
+                
+                students.forEach(student => {
+                    const attendanceItem = document.createElement('div');
+                    attendanceItem.className = 'form-group';
+                    attendanceItem.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #f9f9f9; border-radius: 8px; margin-bottom: 10px;">
+                            <div>
+                                <strong>${student.name}</strong>
+                                <div style="font-size: 0.9rem; color: #666;">Grade ${student.class}</div>
+                            </div>
+                            <div>
+                                <label style="margin-right: 15px;">
+                                    <input type="radio" name="attendance-${student.id}" value="present" checked> Present
+                                </label>
+                                <label>
+                                    <input type="radio" name="attendance-${student.id}" value="absent"> Absent
+                                </label>
+                            </div>
+                        </div>
+                    `;
+                    attendanceList.appendChild(attendanceItem);
+                });
+                
+                attendanceModal.classList.add('active');
+            });
+            
+            closeAttendanceModal.addEventListener('click', () => {
+                attendanceModal.classList.remove('active');
+            });
+            
+            // Collect fees modal
+            const collectFeesBtn = document.getElementById('collectFeesBtn');
+            const feesModal = document.getElementById('feesModal');
+            const closeFeesModal = document.getElementById('closeFeesModal');
+            
+            collectFeesBtn.addEventListener('click', () => {
+                // Populate student dropdown
+                const feesStudentSelect = document.getElementById('feesStudent');
+                feesStudentSelect.innerHTML = '<option value="">Select Student</option>';
+                
+                students.forEach(student => {
+                    if (student.fees !== "Paid") {
+                        const option = document.createElement('option');
+                        option.value = student.id;
+                        option.textContent = `${student.name} (Grade ${student.class}) - Due: ₹${student.monthlyFees}`;
+                        feesStudentSelect.appendChild(option);
+                    }
+                });
+                
+                feesModal.classList.add('active');
+            });
+            
+            closeFeesModal.addEventListener('click', () => {
+                feesModal.classList.remove('active');
+            });
+            
+            // Save attendance button
+            const saveAttendanceBtn = document.getElementById('saveAttendanceBtn');
+            saveAttendanceBtn.addEventListener('click', () => {
+                alert('Attendance saved successfully!');
+                attendanceModal.classList.remove('active');
+            });
+            
+            // Close modals when clicking outside
+            const modals = document.querySelectorAll('.modal-overlay');
+            modals.forEach(modal => {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        modal.classList.remove('active');
+                    }
+                });
+            });
+        }
+
+        // Setup form handlers
+        function setupFormHandlers() {
+            // Add student form
+            const addStudentForm = document.getElementById('addStudentForm');
+            addStudentForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const studentName = document.getElementById('studentName').value;
+                const studentClass = document.getElementById('studentClass').value;
+                const studentPhone = document.getElementById('studentPhone').value;
+                const studentEmail = document.getElementById('studentEmail').value;
+                const monthlyFees = document.getElementById('monthlyFees').value;
+                
+                // Generate a random ID for the new student
+                const newId = students.length + 1;
+                
+                // Add the new student to the array
+                students.push({
+                    id: newId,
+                    name: studentName,
+                    class: studentClass,
+                    attendance: "95%",
+                    performance: "85%",
+                    fees: "Pending",
+                    phone: studentPhone,
+                    email: studentEmail,
+                    monthlyFees: parseInt(monthlyFees)
+                });
+                
+                // Update the display
+                renderStudentCards();
+                renderAttendanceTable();
+                renderPerformanceTable();
+                renderFeesTable();
+                
+                // Close modal and reset form
+                document.getElementById('addStudentModal').classList.remove('active');
+                addStudentForm.reset();
+                
+                // Show success message
+                alert(`Student ${studentName} added successfully!`);
+            });
+            
+            // Collect fees form
+            const collectFeesForm = document.getElementById('collectFeesForm');
+            collectFeesForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const studentId = parseInt(document.getElementById('feesStudent').value);
+                const amount = document.getElementById('feesAmount').value;
+                const month = document.getElementById('feesMonth').value;
+                const paymentMethod = document.getElementById('paymentMethod').value;
+                
+                // Find the student and update their fee status
+                const studentIndex = students.findIndex(s => s.id === studentId);
+                if (studentIndex !== -1) {
+                    students[studentIndex].fees = "Paid";
+                }
+                
+                // Update the display
+                renderStudentCards();
+                renderFeesTable();
+                
+                // Close modal and reset form
+                document.getElementById('feesModal').classList.remove('active');
+                collectFeesForm.reset();
+                
+                // Show success message
+                alert(`Fees of ₹${amount} collected successfully for ${month}!`);
+            });
+        }
+
+        // Function to collect fees for a specific student
+        function collectFeesForStudent(studentId) {
+            // Find the student
+            const student = students.find(s => s.id === studentId);
+            if (!student) return;
+            
+            // Update fee status
+            student.fees = "Paid";
+            
+            // Update the display
+            renderStudentCards();
+            renderFeesTable();
+            
+            // Show success message
+            alert(`Fees collected successfully for ${student.name}!`);
+        }
+    </script>
+</body>
+</html>
