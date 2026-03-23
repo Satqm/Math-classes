@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>AI Deep Dive | Observe with Satyam</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --teal: #00d4c8;
+      --teal-dim: #00a89e;
+      --gold: #ffd166;
+      --gold-dim: #f5a623;
+      --slate: #0f172a;
+      --slate-mid: #1e293b;
+      --slate-light: #334155;
+      --text: #e2e8f0;
+      --text-dim: #94a3b8;
+      --card-bg: rgba(30, 41, 59, 0.8);
+      --border: rgba(0, 212, 200, 0.18);
+      --danger: #ef4444;
+      --success: #10b981;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+      background: var(--slate);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    body::before {
+      content: ''; position: fixed; inset: 0; z-index: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+    }
+    header { position: sticky; top: 0; z-index: 100; background: rgba(15,23,42,0.85); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); padding: 0 2rem; }
+    .header-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 64px; gap: 1rem; }
+    .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .brand-icon { width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, var(--teal), var(--teal-dim)); display: flex; align-items: center; justify-content: center; font-size: 1rem; color: var(--slate); font-weight: 800; box-shadow: 0 0 12px rgba(0,212,200,0.3); }
+    .brand-name { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 800; color: var(--text); }
+    .brand-name span { color: var(--teal); }
+    .socials { display: flex; gap: 1rem; }
+    .socials a { color: var(--text-dim); font-size: 1rem; transition: color 0.2s, transform 0.2s; }
+    .socials a:hover { color: var(--teal); transform: translateY(-1px); }
+    
+    .tab-nav { max-width: 1200px; margin: 0 auto; padding: 1.5rem 1rem 0; display: flex; gap: 0.5rem; position: relative; z-index: 1; flex-wrap: wrap; justify-content: center;}
+    .tab-btn { padding: 0.6rem 1.4rem; border-radius: 999px; border: 1px solid var(--border); background: transparent; color: var(--text-dim); font-family: 'Space Grotesk', sans-serif; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.25s; display: flex; align-items: center; gap: 0.5rem; }
+    .tab-btn.active { background: var(--teal); color: var(--slate); border-color: var(--teal); box-shadow: 0 0 18px rgba(0,212,200,0.35); }
+    .tab-content { display: none; position: relative; z-index: 1; }
+    .tab-content.active { display: block; }
+    
+    .container { max-width: 1100px; margin: 0 auto; padding: 2rem 1rem 4rem; }
+    .hero { text-align: center; padding: 3rem 0 2rem; }
+    .hero-eyebrow { display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(0,212,200,0.1); border: 1px solid var(--border); color: var(--teal); font-size: 0.8rem; font-weight: 600; padding: 0.4rem 1rem; border-radius: 999px; margin-bottom: 1.2rem; letter-spacing: 0.05em; text-transform: uppercase; }
+    .hero h1 { font-family: 'Syne', sans-serif; font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 800; line-height: 1.1; background: linear-gradient(135deg, #fff 30%, var(--teal)); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 1rem; }
+    
+    .section-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; overflow: hidden; margin-bottom: 1.5rem; backdrop-filter: blur(12px); transition: border-color 0.3s; }
+    .card-header { display: flex; align-items: center; gap: 1rem; padding: 1.2rem 1.5rem; background: rgba(0,0,0,0.2); border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+    .step-badge { width: 32px; height: 32px; border-radius: 10px; background: linear-gradient(135deg, var(--teal), var(--teal-dim)); color: var(--slate); font-weight: 800; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .card-header h2 { font-family: 'Syne', sans-serif; font-size: 1.15rem; font-weight: 700; }
+    .card-body { padding: 1.5rem; }
+    @media(max-width: 640px) { .card-body { padding: 1rem; } }
+
+    /* ========= SAFETY TIMELINE STYLES ========= */
+    .timeline-wrap { position: relative; padding: 2rem 0; margin-top: 1rem; }
+    .timeline-wrap::before { content: ''; position: absolute; top: 0; bottom: 0; left: 24px; width: 2px; background: linear-gradient(to bottom, var(--danger), var(--gold), var(--success)); opacity: 0.5; }
+    @media(min-width: 768px) { .timeline-wrap::before { left: 50%; transform: translateX(-50%); } }
+    
+    .timeline-item { position: relative; margin-bottom: 2rem; display: flex; flex-direction: column; padding-left: 60px; }
+    @media(min-width: 768px) { 
+      .timeline-item { flex-direction: row; padding-left: 0; justify-content: center; align-items: flex-start; }
+      .timeline-item:nth-child(odd) { flex-direction: row-reverse; }
+      .timeline-item:nth-child(odd) .tl-content { text-align: right; }
+      .timeline-item:nth-child(odd) .tl-risks { flex-direction: row-reverse; }
+    }
+
+    .tl-marker { position: absolute; left: 12px; top: 0; width: 34px; height: 34px; border-radius: 50%; background: var(--slate-mid); border: 3px solid var(--teal); display: flex; align-items: center; justify-content: center; z-index: 2; transition: all 0.3s; box-shadow: 0 0 6px rgba(0,212,200,0.3); }
+    @media(min-width: 768px) { .tl-marker { left: 50%; transform: translateX(-50%); } }
+    .timeline-item:hover .tl-marker { background: var(--teal); border-color: var(--gold); box-shadow: 0 0 18px rgba(0,212,200,0.6); transform: scale(1.05) translateX(-50%); }
+
+    .tl-content { background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 1.2rem 1.5rem; width: 100%; max-width: 480px; cursor: pointer; transition: all 0.3s ease; position: relative; backdrop-filter: blur(8px); }
+    .tl-content:hover { border-color: var(--gold); transform: translateY(-3px); box-shadow: 0 12px 24px -12px rgba(0,0,0,0.5); }
+    @media(min-width: 768px) { .tl-content { margin: 0 40px; } }
+
+    .tl-step { font-size: 0.7rem; color: var(--gold); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 0.4rem; font-weight: 700; display: inline-block; background: rgba(255,209,102,0.12); padding: 0.2rem 0.6rem; border-radius: 40px; }
+    .tl-title { font-family: 'Syne', sans-serif; font-size: 1.2rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; justify-content: space-between; }
+    
+    .tl-details { display: none; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1); animation: fadeSlide 0.25s ease-out; }
+    .tl-content.open .tl-details { display: block; }
+    .tl-content.open .chevron { transform: rotate(180deg); color: var(--teal); }
+    .chevron { transition: transform 0.3s; color: var(--text-dim); font-size: 0.9rem; }
+
+    .tl-risks { display: flex; flex-direction: column; gap: 1rem; margin-top: 0.5rem; }
+    .risk-box { font-size: 0.85rem; padding: 0.8rem 1rem; border-radius: 14px; line-height: 1.5; background: rgba(0,0,0,0.3); }
+    .risk-in { border-left: 4px solid var(--danger); background: rgba(239,68,68,0.08); }
+    .risk-out { border-left: 4px solid var(--success); background: rgba(16,185,129,0.08); }
+    .risk-neutral { border-left: 4px solid var(--teal); background: rgba(0,212,200,0.05); }
+    
+    .risk-title { font-weight: 700; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; }
+    .risk-in .risk-title { color: #fca5a5; }
+    .risk-out .risk-title { color: #86efac; }
+    .risk-neutral .risk-title { color: var(--teal); }
+
+    @keyframes fadeSlide { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Additional existing styles needed for attention/mindmap */
+    .tokens-row { display: flex; flex-wrap: wrap; gap: 0.6rem; justify-content: center; padding: 1rem 0; }
+    .token { padding: 0.5rem 1.1rem; border-radius: 999px; background: rgba(0,212,200,0.08); border: 1.5px solid rgba(0,212,200,0.25); font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+    .token.selected { background: var(--teal); color: var(--slate); border-color: var(--teal); box-shadow: 0 0 16px rgba(0,212,200,0.4); transform: translateY(-2px); }
+    .qkv-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+    @media(max-width:768px) { .qkv-grid { grid-template-columns: 1fr; } }
+    .qkv-card { background: rgba(0,0,0,0.25); border-radius: 14px; border: 1px solid var(--border); padding: 1rem; }
+    .bar-list { display: flex; flex-direction: column; gap: 0.6rem; width: 100%; }
+    .bar-row { display: flex; align-items: center; gap: 0.75rem; width: 100%; }
+    .bar-label { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; width: 70px; flex-shrink: 0; color: var(--text-dim); }
+    .bar-track { flex: 1; height: 22px; background: rgba(255,255,255,0.06); border-radius: 999px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--teal-dim), var(--teal)); transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    .bar-fill.gold { background: linear-gradient(90deg, #d97706, var(--gold)); }
+    .heatmap-wrap { overflow-x: auto; }
+    .heatmap-grid { display: grid; gap: 4px; min-width: 500px; }
+    .hm-cell { height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: monospace; font-size: 0.72rem; cursor: pointer; transition: all 0.15s; border: 1px solid transparent; }
+    .flow-vis { position: relative; padding: 1.5rem 0; min-height: 170px; overflow-x: auto; }
+    .flow-tokens-row { display: flex; justify-content: space-around; position: relative; z-index: 2; min-width: 400px; }
+    .flow-token-box { padding: 0.4rem 0.8rem; border-radius: 10px; font-family: monospace; font-size: 0.8rem; border: 1.5px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.06); }
+    .flow-token-box.source { border-color: var(--teal); background: rgba(0,212,200,0.15); color: var(--teal); }
+    #flow-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; min-width: 400px;}
+    .sim10-canvas { background: rgba(0,0,0,0.25); border-radius: 12px; padding: 1.5rem; min-height: 250px; overflow-x: auto; }
+    .sim10-progress { display: flex; gap: 0.6rem; overflow-x: auto; padding: 0.5rem 0 1rem; margin-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); scrollbar-width: none; }
+    .sim10-phase-seg { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem 1rem; border-radius: 999px; font-size: 0.85rem; white-space: nowrap; color: var(--text-dim); cursor: pointer; transition: all 0.2s; }
+    .sim10-phase-seg.active { background: var(--teal); color: var(--slate); border-color: var(--teal); font-weight: 600; }
+    .explain-box { background: rgba(0,212,200,0.06); border-left: 4px solid var(--teal); border-radius: 0 12px 12px 0; padding: 1rem 1.2rem; font-size: 0.9rem; line-height: 1.7; color: var(--text-dim); margin-top: 1rem; }
+    .formula-box { background: var(--slate-mid); border: 1px solid var(--border); border-radius: 16px; padding: 1rem; text-align: center; font-family: monospace; margin: 1rem 0; }
+    .llm-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.8rem; }
+    .llm-card { background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; text-align: center; }
+    .mindmap-canvas-wrap { position: relative; width: 100%; min-height: 650px; }
+    #mmCanvas { position: relative; width: 100%; min-height: 650px; }
+    .mm-hub { position: absolute; z-index: 10; width: 180px; height: 180px; top: 50%; left: 50%; transform: translate(-50%, -50%); background: radial-gradient(circle at 35% 35%, #ffe066, #f5a623); border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; box-shadow: 0 0 0 8px rgba(245,166,35,0.15); border: 2px solid rgba(255,255,255,0.25); }
+    .mm-node { position: absolute; width: 220px; background: rgba(15,28,55,0.9); backdrop-filter: blur(16px); border: 1.5px solid rgba(245,166,35,0.4); border-radius: 22px; padding: 1rem 0.8rem; cursor: pointer; transition: all 0.25s; text-align: center; }
+    .mm-node:hover { transform: scale(1.05); border-color: var(--gold); background: rgba(15,28,55,1); z-index: 20; }
+    .modal-bg { position: fixed; inset: 0; z-index: 1000; background: rgba(5,13,26,0.85); backdrop-filter: blur(16px); display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+    .modal-bg.open { opacity: 1; pointer-events: all; }
+    .modal { background: linear-gradient(145deg, #0f1e38, #080f1e); border: 1.5px solid rgba(245,166,35,0.5); border-radius: 28px; max-width: 560px; width: 100%; max-height: 90vh; overflow-y: auto; }
+    @media(max-width:800px){ .mm-hub { position: relative; transform: none; margin-bottom: 1.5rem; } .mm-node { position: relative; width: 100% !important; margin-bottom: 1rem; } #mmSvg { display: none; } }
+    .link-frameworks-btn { background: rgba(245,166,35,0.15); border: 1px solid var(--gold-dim); border-radius: 40px; padding: 0.6rem 1.4rem; font-weight: 600; color: var(--gold); cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 0.6rem; margin-top: 0.8rem; }
+  </style>
+</head>
+<body>
+<header><div class="header-inner"><a class="brand" href="#"><div class="brand-icon">S</div><span class="brand-name">Observe with <span>Satyam</span></span></a><div class="socials"><a href="#"><i class="fab fa-instagram"></i></a><a href="#"><i class="fab fa-linkedin-in"></i></a><a href="#"><i class="fab fa-youtube"></i></a><a href="#"><i class="fab fa-telegram-plane"></i></a></div></div></header>
+
+<div class="tab-nav">
+  <button class="tab-btn active" id="btn-attn" onclick="switchTab('attn')"><i class="fas fa-brain"></i> Attention Simulator</button>
+  <button class="tab-btn" id="btn-mindmap" onclick="switchTab('mindmap')"><i class="fas fa-project-diagram"></i> Prompt Frameworks</button>
+  <button class="tab-btn" id="btn-safety" onclick="switchTab('safety')"><i class="fas fa-shield-alt"></i> Safety Architecture</button>
+</div>
+
+<!-- Tab 1: Attention Simulator (full featured) -->
+<div class="tab-content active" id="tab-attn">
+  <div class="container"><div class="hero"><div class="hero-eyebrow"><i class="fas fa-bolt"></i> Interactive Deep Dive</div><h1>How Attention Works</h1><p>Click a token. Watch it gather context from every other word — step by step.</p></div>
+  <div class="section-card"><div class="card-header"><div class="step-badge">1</div><h2>Tokenization — Breaking the Sentence</h2></div><div class="card-body"><div class="tokens-row" id="tokens-row"></div><div class="explain-box"><strong>Click any token →</strong> the whole dashboard updates from that token’s perspective.</div></div></div>
+  <div class="section-card"><div class="card-header"><div class="step-badge">2</div><h2>Token Embeddings — Numbers that Carry Meaning</h2></div><div class="card-body"><div id="embedding-display" style="font-family:monospace;background:rgba(0,0,0,0.25);border-radius:12px;padding:1rem;"></div></div></div>
+  <div class="section-card"><div class="card-header"><div class="step-badge">3</div><h2>Why Q, K, V?</h2></div><div class="card-body"><div class="qkv-grid"><div class="qkv-card"><div style="color:#a855f7; font-weight:bold;">Q — Query</div><div>"What am I looking for?"</div></div><div class="qkv-card"><div style="color:#eab308; font-weight:bold;">K — Key</div><div>"What do I have to offer?"</div></div><div class="qkv-card"><div style="color:#10b981; font-weight:bold;">V — Value</div><div>"Here's my actual info."</div></div></div></div></div>
+  <div class="section-card"><div class="card-header"><div class="step-badge">4</div><h2>Q,K,V Vectors</h2></div><div class="card-body"><div id="qkv-vectors" class="qkv-grid"></div><div class="formula-box">Q = W<sub>Q</sub>·E , K = W<sub>K</sub>·E , V = W<sub>V</sub>·E</div></div></div>
+  <div class="section-card"><div class="card-header"><div class="step-badge">5</div><h2>Attention Scores — Q·K/√d</h2></div><div class="card-body"><div id="scores-bars" class="bar-list"></div></div></div>
+  <div class="section-card"><div class="card-header"><div class="step-badge">6</div><h2>Attention Probabilities (Softmax)</h2></div><div class="card-body"><div id="softmax-bars" class="bar-list"></div><div class="formula-box">Softmax turns scores into percentages that sum to 100% — "how much to focus on each word".</div></div></div>
+  <div class="section-card"><div class="card-header"><div class="step-badge">7</div><h2>Attention Flow</h2></div><div class="card-body"><div class="flow-vis"><svg id="flow-svg"></svg><div class="flow-tokens-row" id="flow-tokens-row"></div></div></div></div>
+  <div class="section-card"><div class="card-header"><div class="step-badge">8</div><h2>Full Attention Matrix</h2></div><div class="card-body"><div class="heatmap-wrap"><div id="heatmap" class="heatmap-grid"></div></div></div></div>
+  <div class="section-card"><div class="card-header"><div class="step-badge">9</div><h2>Output — Contextualized Embedding</h2></div><div class="card-body"><div id="output-display" style="font-family:monospace;background:rgba(0,0,0,0.25);border-radius:12px;padding:1rem;"></div><div class="formula-box">output = Σ (attention_weight × V)</div></div></div>
+  <div class="section-card"><div class="card-header"><div class="step-badge" style="background:linear-gradient(135deg,#a78bfa,#7c3aed);">10</div><h2>Complete Attention Flow — Animated Visual Pipeline</h2></div><div class="card-body"><div class="sim10-controls" style="display:flex; gap:0.75rem; flex-wrap:wrap; margin-bottom:1rem;"><button class="ctrl-btn" id="s10-prev"><i class="fas fa-step-backward"></i></button><button class="ctrl-btn primary" id="s10-play"><i class="fas fa-pause" id="s10-play-icon"></i></button><button class="ctrl-btn" id="s10-next"><i class="fas fa-step-forward"></i></button><button class="ctrl-btn" id="s10-reset">↺ Reset</button><select id="s10-speed" style="background:var(--slate); color:#fff; border:1px solid var(--border); padding:0.3rem; border-radius:6px;"><option value="2200">Normal</option><option value="1100">Fast</option><option value="3800">Slow</option></select><span id="s10-counter" style="margin-left:auto;">Step 1/6</span></div><div class="sim10-progress" id="s10-progress"></div><div class="sim10-canvas" id="s10-canvas"></div><div class="sim10-explain" id="s10-explain" style="margin-top:1.5rem; background:rgba(0,212,200,0.08); border-radius:12px; padding:1rem;"></div></div></div>
+  <div class="section-card"><div class="card-header"><div class="step-badge">11</div><h2>From Attention to LLM</h2></div><div class="card-body"><div class="llm-grid"><div class="llm-card"><div>🏗️ 96 Layers</div></div><div class="llm-card"><div>🧠 Multi-Head</div></div><div class="llm-card"><div>⚡ Feed-Forward</div></div><div class="llm-card"><div>🔗 Residuals</div></div></div><div class="formula-box">Attention(Q,K,V)=softmax(QKᵀ/√d)·V</div></div></div>
+  <div class="section-card"><div class="card-header"><div class="step-badge">12</div><h2>How Q&A and Reasoning Work</h2></div><div class="card-body"><p style="margin-bottom:1rem;">LLMs don't "understand" — they predict the next token based on learned patterns.</p><div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;"><div class="qkv-card" style="border-left:4px solid #f87171;"><div style="font-weight:bold;">Direct Answering</div><div>Question → Answer. Hard jump, fails on complex tasks.</div></div><div class="qkv-card" style="border-left:4px solid #34d399;"><div style="font-weight:bold;">Chain-of-Thought</div><div>Question → Step 1 → Step 2 → Answer. Much stronger reasoning.</div></div></div><div class="link-frameworks-btn" onclick="switchTab('mindmap')"><i class="fas fa-project-diagram"></i> Explore 9 Prompt Frameworks →</div></div></div>
+  <footer style="text-align:center; padding:2rem; border-top:1px solid var(--border);">© 2026 Observe with Satyam — AI Deep Dive</footer></div>
+</div>
+
+<!-- Tab 2: Prompt Frameworks Mindmap (full) -->
+<div class="tab-content" id="tab-mindmap"><div class="mindmap-outer" style="max-width:1200px; margin:0 auto; padding:2rem 1rem;"><div class="mindmap-hero"><div class="hero-eyebrow" style="color:var(--gold);"><i class="fas fa-project-diagram"></i> Interactive Mind Map</div><h1 style="font-family:'Syne',sans-serif;">9 Prompt Frameworks</h1><p>Click any node → full explanation + real-life use cases + ready prompt</p></div><div class="mindmap-canvas-wrap"><div id="mmCanvas"><svg id="mmSvg" style="position:absolute; top:0; left:0; pointer-events:none; z-index:0;"></svg><div class="mm-hub"><i class="fas fa-brain" style="font-size:2rem; color:#000;"></i><div class="mm-hub-title">PROMPT<br>FRAMEWORKS</div></div></div></div></div></div>
+
+<!-- Tab 3: Safety Architecture (NEW) -->
+<div class="tab-content" id="tab-safety">
+  <div class="container">
+    <div class="hero">
+      <div class="hero-eyebrow" style="color:var(--success); border-color:var(--success);"><i class="fas fa-layer-group"></i> Infrastructure Deep Dive</div>
+      <h1 style="background: linear-gradient(135deg, #fff 30%, var(--success)); -webkit-background-clip: text;">AI Safety Layers</h1>
+      <p>AI safety is not a single filter. It is a layered system where each stage removes specific risks, transforming raw input into reliable, controlled output. <strong style="color:var(--gold);">Click any layer to expand risks & mitigation.</strong></p>
+    </div>
+    <div class="timeline-wrap" id="safety-timeline"></div>
+    <div class="section-card" style="margin-top: 2rem; border-color: rgba(239, 68, 68, 0.4);">
+      <div class="card-header"><div class="step-badge" style="background: var(--danger); color: white;"><i class="fas fa-exclamation-triangle"></i></div><h2>Residual Risk (The Reality)</h2></div>
+      <div class="card-body"><p style="margin-bottom:1rem;">Even after passing through all 12 layers, no system is perfectly secure. We must always account for residual risks.</p><div style="display:flex; flex-wrap:wrap; gap:0.8rem;"><span style="background: rgba(239,68,68,0.15); border:1px solid var(--danger); padding:0.4rem 0.9rem; border-radius:40px;">🧠 Hallucinations</span><span style="background: rgba(239,68,68,0.15); border:1px solid var(--danger); padding:0.4rem 0.9rem; border-radius:40px;">⚖️ Model Bias</span><span style="background: rgba(239,68,68,0.15); border:1px solid var(--danger); padding:0.4rem 0.9rem; border-radius:40px;">🔓 Zero-Day Jailbreaks</span><span style="background: rgba(239,68,68,0.15); border:1px solid var(--danger); padding:0.4rem 0.9rem; border-radius:40px;">🚫 Overblocking</span></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modal-bg"><div class="modal"><div class="modal-head"><h2 id="modal-title" style="color:#fff;">Framework</h2><button class="modal-close" id="modal-close"><i class="fas fa-times"></i></button></div><div class="modal-body" id="modal-body"></div></div></div>
+
+<script>
+// ---------- ATTENTION DATA & HELPERS ----------
+const tokens = ["Satyam", "helps", "you", "upskill", "in", "AI"];
+const embeddings = [[0.8,0.2,0.5,0.9],[0.3,0.7,0.4,0.2],[0.6,0.4,0.8,0.3],[0.4,0.9,0.3,0.7],[0.2,0.3,0.6,0.4],[0.9,0.5,0.2,0.8]];
+const W_Q = [[0.5,0.3,0.2,0.4],[0.2,0.6,0.3,0.1],[0.4,0.2,0.5,0.3],[0.3,0.4,0.2,0.6]];
+const W_K = [[0.4,0.2,0.3,0.1],[0.5,0.3,0.2,0.4],[0.2,0.4,0.6,0.1],[0.3,0.2,0.4,0.5]];
+const W_V = [[0.7,0.1,0.2,0.3],[0.2,0.8,0.1,0.2],[0.3,0.1,0.7,0.2],[0.1,0.2,0.3,0.6]];
+function matVec(e,W){ let r=[0,0,0,0]; for(let i=0;i<4;i++) for(let j=0;j<4;j++) r[i]+=e[j]*W[j][i]; return r.map(v=>+v.toFixed(4));}
+const Qs = embeddings.map(e=>matVec(e,W_Q)), Ks = embeddings.map(e=>matVec(e,W_K)), Vs = embeddings.map(e=>matVec(e,W_V));
+const sqrtD=2;
+function dot(a,b){ return a.reduce((s,v,i)=>s+v*b[i],0);}
+const rawScores = tokens.map((_,i)=>tokens.map((_,j)=>+(dot(Qs[i],Ks[j])/sqrtD).toFixed(4)));
+function softmax(row){ let mx=Math.max(...row), exps=row.map(v=>Math.exp(v-mx)), sum=exps.reduce((a,b)=>a+b,0); return exps.map(v=>+(v/sum).toFixed(4));}
+const attnW = rawScores.map(row=>softmax(row));
+const outputs = tokens.map((_,i)=>{ let out=[0,0,0,0]; for(let j=0;j<tokens.length;j++){ let w=attnW[i][j]; for(let d=0;d<4;d++) out[d]+=w*Vs[j][d]; } return out.map(v=>+v.toFixed(4));});
+let selIdx = 0;
+
+function switchTab(t) { 
+  document.querySelectorAll('.tab-content').forEach(el=>el.classList.remove('active')); 
+  document.querySelectorAll('.tab-btn').forEach(el=>el.classList.remove('active')); 
+  document.getElementById(`tab-${t}`).classList.add('active'); 
+  document.getElementById(`btn-${t}`).classList.add('active'); 
+  window.scrollTo(0,0);
+  if(t==='mindmap') setTimeout(initMindMap,80);
+}
+
+function renderTokensRow(){ let el=document.getElementById('tokens-row'); el.innerHTML=tokens.map((t,i)=>`<div class="token ${i===selIdx?'selected':''}" data-i="${i}">${t}</div>`).join(''); document.querySelectorAll('.token').forEach(tok=>tok.addEventListener('click',()=>{selIdx=+tok.dataset.i; updateAll();}));}
+function renderEmbedding(){ let e=embeddings[selIdx]; document.getElementById('embedding-display').innerHTML=`<span style="color:var(--teal)">${tokens[selIdx]}</span> → [${e.map(v=>`<span style="color:var(--gold)">${v}</span>`).join(', ')}]`;}
+function renderQKV(){ let q=Qs[selIdx],k=Ks[selIdx],v=Vs[selIdx]; document.getElementById('qkv-vectors').innerHTML=`<div class="qkv-card"><div style="color:#a855f7;">Q</div><div style="font-family:monospace;">[${q.join(', ')}]</div></div><div class="qkv-card"><div style="color:#eab308;">K</div><div style="font-family:monospace;">[${k.join(', ')}]</div></div><div class="qkv-card"><div style="color:#10b981;">V</div><div style="font-family:monospace;">[${v.join(', ')}]</div></div>`;}
+function renderScores(){ let scores=rawScores[selIdx], mx=Math.max(...scores); document.getElementById('scores-bars').innerHTML=tokens.map((t,i)=>`<div class="bar-row"><div class="bar-label">${t}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.max(2, (scores[i]/mx)*100)}%"></div></div><div class="bar-val">${scores[i]}</div></div>`).join('');}
+function renderSoftmax(){ let probs=attnW[selIdx]; document.getElementById('softmax-bars').innerHTML=tokens.map((t,i)=>`<div class="bar-row"><div class="bar-label">${t}</div><div class="bar-track"><div class="bar-fill gold" style="width:${probs[i]*100}%"></div></div><div class="bar-val">${(probs[i]*100).toFixed(0)}%</div></div>`).join('');}
+function renderFlow(){ let rowDiv=document.getElementById('flow-tokens-row'); rowDiv.innerHTML=tokens.map((t,i)=>`<div style="text-align:center;"><div class="flow-token-box ${i===selIdx?'source':''}">${t}</div><div style="font-size:0.7rem;">${(attnW[selIdx][i]*100).toFixed(0)}%</div></div>`).join(''); setTimeout(()=>{ let svg=document.getElementById('flow-svg'), vis=document.getElementById('flow-vis').getBoundingClientRect(), boxes=rowDiv.querySelectorAll('.flow-token-box'); if(!vis.width) return; let src=boxes[selIdx].getBoundingClientRect(), srcX=src.left+src.width/2-vis.left, srcY=src.top+src.height/2-vis.top; let lines=''; boxes.forEach((box,i)=>{ if(i===selIdx) return; let b=box.getBoundingClientRect(), tx=b.left+b.width/2-vis.left, ty=b.top+b.height/2-vis.top, w=attnW[selIdx][i]; let sw=1+w*12; lines+=`<line x1="${srcX}" y1="${srcY}" x2="${tx}" y2="${ty}" stroke="rgba(0,212,200,${0.2+w*0.8})" stroke-width="${sw}" stroke-linecap="round"/>`; }); svg.innerHTML=lines; }, 10);}
+function renderHeatmap(){ let n=tokens.length, el=document.getElementById('heatmap'); el.style.gridTemplateColumns=`80px repeat(${n},1fr)`; let html=`<div></div>`+tokens.map(t=>`<div style="text-align:center;">${t}</div>`).join(''); tokens.forEach((_,i)=>{ html+=`<div style="display:flex; align-items:center;">${tokens[i]}</div>`; tokens.forEach((_,j)=>{ let v=attnW[i][j]; html+=`<div class="hm-cell" data-row="${i}" data-col="${j}" style="background:rgba(0,212,200,${0.1+v*0.8});">${(v*100).toFixed(0)}%</div>`; }); }); el.innerHTML=html; el.querySelectorAll('.hm-cell').forEach(c=>c.addEventListener('click',()=>{selIdx=+c.dataset.row; updateAll();}));}
+function renderOutput(){ let out=outputs[selIdx]; document.getElementById('output-display').innerHTML=`<span style="color:var(--teal)">${tokens[selIdx]}</span> contextual → [${out.map(v=>v.toFixed(3)).join(', ')}]`;}
+const S10_PHASES = [{id:'tokens',label:'Input Tokens'},{id:'qkv',label:'Q·K·V'},{id:'scores',label:'Dot Scores'},{id:'softmax',label:'Softmax'},{id:'wsum',label:'Weighted Sum'},{id:'output',label:'Output'}];
+let s10Phase=0, s10Playing=true, s10Timer=null;
+function buildS10Canvas(){ let i=selIdx, probs=attnW[i], scores=rawScores[i], outVec=outputs[i]; let prog=document.getElementById('s10-progress'); if(prog) prog.innerHTML=S10_PHASES.map((ph,pi)=>`<div class="sim10-phase-seg ${pi<s10Phase?'done':pi===s10Phase?'active':''}" data-phase="${pi}" onclick="setS10Phase(${pi})">${ph.label}</div>`).join(''); document.getElementById('s10-counter').innerHTML=`Step ${s10Phase+1}/6`; let canvas=document.getElementById('s10-canvas'); if(s10Phase===0) canvas.innerHTML=`<div style="display:flex;justify-content:center;flex-wrap:wrap;gap:0.7rem;">${tokens.map((t,ti)=>`<div class="s10-tok-btn" data-ti="${ti}" style="padding:0.6rem 1rem; border-radius:12px; border:1px solid ${ti===i?'var(--teal)':'var(--border)'}; cursor:pointer;"><strong>${t}</strong><div style="font-size:0.7rem;">${embeddings[ti].slice(0,2).join(',')}..</div></div>`).join('')}</div>`; else if(s10Phase===1) canvas.innerHTML=`<div style="text-align:center;"><strong>${tokens[i]}</strong> → <span style="color:#a855f7;">Q</span> <span style="color:#eab308;">K</span> <span style="color:#10b981;">V</span> projections</div>`; else if(s10Phase===2) canvas.innerHTML=`<div class="bar-list">${tokens.map((t,ti)=>`<div class="bar-row"><div class="bar-label">${t}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.max(4,(scores[ti]/Math.max(...scores))*100)}%"></div></div><div>${scores[ti]}</div></div>`).join('')}</div>`; else if(s10Phase===3) canvas.innerHTML=`<div class="bar-list">${tokens.map((t,ti)=>`<div class="bar-row"><div class="bar-label">${t}</div><div class="bar-track"><div class="bar-fill gold" style="width:${probs[ti]*100}%"></div></div><div>${(probs[ti]*100).toFixed(0)}%</div></div>`).join('')}</div>`; else if(s10Phase===4) canvas.innerHTML=`<div class="bar-list">${tokens.map((t,ti)=>`<div class="bar-row"><div>${t} × ${(probs[ti]*100).toFixed(0)}% of V</div></div>`).join('')}</div>`; else canvas.innerHTML=`<div><strong>${tokens[i]}</strong> contextualized → [${outVec.slice(0,3).join(',')}..]</div>`; document.getElementById('s10-explain').innerHTML=`<i class="fas fa-info-circle"></i> ${S10_PHASES[s10Phase].label} stage: ${s10Phase===0?'Select token to focus':s10Phase===1?'Query, Key, Value vectors':s10Phase===2?'Raw relevance scores':s10Phase===3?'Softmax percentages':s10Phase===4?'Weighted sum of Values':s10Phase===5?'Final enriched embedding'}`; canvas.querySelectorAll('.s10-tok-btn')?.forEach(btn=>btn.addEventListener('click',()=>{selIdx=+btn.dataset.ti; updateAll(); buildS10Canvas();}));}
+function setS10Phase(p){ s10Stop(); s10Playing=false; document.getElementById('s10-play-icon').className='fas fa-play'; s10Phase=p; buildS10Canvas(); }
+function s10Start(){ if(s10Timer) return; const delay=+document.getElementById('s10-speed').value; s10Timer=setInterval(()=>{ s10Phase=(s10Phase+1)%S10_PHASES.length; buildS10Canvas(); }, delay); }
+function s10Stop(){ clearInterval(s10Timer); s10Timer=null; }
+function updateAll(){ renderTokensRow(); renderEmbedding(); renderQKV(); renderScores(); renderSoftmax(); renderFlow(); renderHeatmap(); renderOutput(); if(document.getElementById('s10-canvas')) buildS10Canvas(); }
+document.getElementById('s10-play')?.addEventListener('click',()=>{ s10Playing=!s10Playing; document.getElementById('s10-play-icon').className=s10Playing?'fas fa-pause':'fas fa-play'; s10Playing?s10Start():s10Stop(); });
+document.getElementById('s10-prev')?.addEventListener('click',()=>{ setS10Phase((s10Phase-1+S10_PHASES.length)%S10_PHASES.length); });
+document.getElementById('s10-next')?.addEventListener('click',()=>{ setS10Phase((s10Phase+1)%S10_PHASES.length); });
+document.getElementById('s10-reset')?.addEventListener('click',()=>{ selIdx=0; s10Phase=0; updateAll(); if(s10Playing) s10Start(); });
+
+// ---------- SAFETY DATA & RENDER ----------
+const safetyData = [
+  { step:"Step 1", title:"User Input Enters", icon:"fas fa-keyboard", desc:"Raw prompt enters the system with unknown intent.", inRisk:"Ambiguous instructions, harmful intent, manipulative phrasing.", outRisk:"None yet – system simply receives the data." },
+  { step:"Step 2", title:"Interface Layer (UI/UX)", icon:"fas fa-desktop", desc:"Input captured, structured, context attached.", inRisk:"User error, blind trust.", outRisk:"Structured input reduces misinterpretation." },
+  { step:"Step 3", title:"Behavior Layer (Metaprompt)", icon:"fas fa-user-tie", desc:"Defines AI's role, tone, strict boundaries.", inRisk:"Scope drift, 'ignore previous instructions' attacks.", outRisk:"Instruction hierarchy prevents manipulation." },
+  { step:"Step 4", title:"Safety Layer (Guardrails)", icon:"fas fa-shield-virus", desc:"Input filtered against safety policies.", inRisk:"Hate speech, self-harm, illegal activities.", outRisk:"Harmful content blocked or redirected." },
+  { step:"Step 5", title:"Model Layer (Foundation)", icon:"fas fa-brain", desc:"Core intelligence processes filtered input.", inRisk:"Low intelligence causing poor answers.", outRisk:"Advanced reasoning ensures coherence." },
+  { step:"Step 6", title:"Processing (Inference)", icon:"fas fa-cogs", desc:"Tokens processed, attention calculated.", inRisk:"Context loss, conflicting instructions.", outRisk:"Context windows keep output relevant." },
+  { step:"Step 7", title:"Reliability Layer", icon:"fas fa-check-double", desc:"Grounds responses in verified data.", inRisk:"Hallucination, overgeneralization.", outRisk:"RAG + uncertainty signaling prevent false confidence." },
+  { step:"Step 8", title:"Tool Integration", icon:"fas fa-tools", desc:"Calls external APIs, web search.", inRisk:"Static outdated knowledge.", outRisk:"Real-time data eliminates cut-off limits." },
+  { step:"Step 9", title:"Memory Management", icon:"fas fa-memory", desc:"Handles session context and preferences.", inRisk:"Repetition, broken continuity.", outRisk:"Maintains thread, sanitizes privacy." },
+  { step:"Step 10", title:"Transparency Layer", icon:"fas fa-search", desc:"Exposes sources, confidence scores.", inRisk:"Black box problem, blind trust.", outRisk:"Mistakes visible, sources verifiable." },
+  { step:"Step 11", title:"Monitoring & Audit", icon:"fas fa-chart-line", desc:"Logs interactions, detects abuse.", inRisk:"Undetected degradation, organized attacks.", outRisk:"Continuous logging patches exploits." },
+  { step:"Step 12", title:"Human Oversight", icon:"fas fa-user-shield", desc:"Human-in-the-loop for edge cases.", inRisk:"Algorithmic edge-case failures.", outRisk:"Manual intervention ensures accountability." }
+];
+function renderSafetyTimeline() {
+  const container = document.getElementById('safety-timeline');
+  if(!container) return;
+  let html = '';
+  safetyData.forEach((item, idx) => {
+    html += `<div class="timeline-item"><div class="tl-marker"><i class="${item.icon}" style="font-size:1rem;"></i></div><div class="tl-content" onclick="this.classList.toggle('open')"><div class="tl-step">${item.step}</div><div class="tl-title">${item.title} <i class="fas fa-chevron-down chevron"></i></div><p style="color:var(--text-dim); font-size:0.85rem;">${item.desc}</p><div class="tl-details"><div class="tl-risks"><div class="risk-box risk-in"><div class="risk-title"><i class="fas fa-exclamation-triangle"></i> Incoming Risks</div>${item.inRisk}</div><div class="risk-box ${idx===0?'risk-neutral':'risk-out'}"><div class="risk-title"><i class="fas fa-shield-alt"></i> ${idx===0?'Status':'Risks Eliminated / Controlled'}</div>${item.outRisk}</div></div></div></div></div>`;
+  });
+  container.innerHTML = html;
+}
+
+// ---------- MINIMAP FRAMEWORKS ----------
+const frameworks = [
+  { name:"RACE", full:"Role · Action · Context · Expectation", meaning:"Define who the AI is, what to do, the situation, and the output format.", useCases:"📝 Writing emails, coding, education", prompt:`"Act as career mentor. Draft a leave message to manager. Keep it polite under 50 words."` },
+  { name:"CLEAR", full:"Context · Learn · Evaluate · Action · Review", meaning:"Give background, ask to teach, test, get revision.", useCases:"Exam prep, interviews", prompt:`"Teach me Inflation in simple terms, give 5 MCQs, revision notes, common mistakes."` },
+  { name:"5W1H", full:"What · Why · Who · When · Where · How", meaning:"Six questions to cover all angles.", useCases:"Career planning, trip planning", prompt:`"Explain freelancing: what options, why in India, who should do it, when to start, where to find clients, how to begin."` },
+  { name:"PASTOR", full:"Problem · Amplify · Story · Transformation · Offer · Response", meaning:"Storytelling hook.", useCases:"LinkedIn posts, proposals", prompt:`"Write LinkedIn post about phone addiction → transformation story → free checklist."` },
+  { name:"STAR", full:"Situation · Task · Action · Result", meaning:"Behavioral answer format.", useCases:"Interviews, resumes", prompt:`"Answer using STAR: a time you resolved a conflict in a team project."` },
+  { name:"FAB", full:"Feature · Advantage · Benefit", meaning:"Translate features into personal benefits.", useCases:"Pitching, sales", prompt:`"Explain why communication skills matter to fresher using FAB."` },
+  { name:"RISE", full:"Role · Identify · Steps · Expectation", meaning:"Editor role to improve content.", useCases:"Polish writing", prompt:`"Act as editor. Identify weak parts, suggest 3 improvements, rewrite for LinkedIn."` },
+  { name:"GROW", full:"Goal · Reality · Options · Will", meaning:"Turn vague goals into actionable plans.", useCases:"Productivity", prompt:`"Goal: wake 5AM. Reality: sleep 1AM. Suggest 4 options, create 14-day plan."` },
+  { name:"SOAP", full:"Subject · Objective · Action · Plan", meaning:"Professional updates with crystal clarity.", useCases:"Client reports, emails", prompt:`"Write professional email about project delay using SOAP."` }
+];
+let mmInit=false;
+function initMindMap(){ if(mmInit) return; mmInit=true; const canvas=document.getElementById('mmCanvas'); document.querySelectorAll('.mm-node').forEach(el=>el.remove()); const nodes=frameworks.map((fw,idx)=>{ let node=document.createElement('div'); node.className='mm-node'; node.dataset.idx=idx; node.innerHTML=`<div class="mm-node-name">${fw.name}</div><div class="mm-node-form">${fw.full.split('·')[0]}…</div><div class="mm-node-cta">🔍 View</div>`; node.addEventListener('click',()=>openModal(idx)); canvas.appendChild(node); return node; }); function layout(){ if(window.innerWidth<=800) { document.getElementById('mmSvg').style.display='none'; return; } let w=canvas.offsetWidth, h=Math.max(canvas.offsetHeight,650), cx=w/2, cy=h/2, radius=Math.min(w*0.35,280), step=(Math.PI*2)/nodes.length; document.getElementById('mmSvg').style.display='block'; nodes.forEach((node,i)=>{ let angle=i*step-Math.PI/2, nw=node.offsetWidth||220, nh=node.offsetHeight||100, x=cx+radius*Math.cos(angle)-nw/2, y=cy+radius*Math.sin(angle)-nh/2; node.style.left=x+'px'; node.style.top=y+'px'; }); let svg=document.getElementById('mmSvg'), rect=canvas.getBoundingClientRect(); svg.setAttribute('width',rect.width); svg.setAttribute('height',rect.height); svg.querySelectorAll('path').forEach(p=>p.remove()); nodes.forEach(node=>{ let nr=node.getBoundingClientRect(), nx=nr.left+nr.width/2-rect.left, ny=nr.top+nr.height/2-rect.top, dx=nx-cx, dy=ny-cy, dist=Math.hypot(dx,dy), hubR=90; let sx=cx+dx/dist*hubR, sy=cy+dy/dist*hubR, ex=cx+dx/dist*(dist-50), ey=cy+dy/dist*(dist-50); let path=document.createElementNS('http://www.w3.org/2000/svg','path'); path.setAttribute('d',`M${sx},${sy} Q${(sx+ex)/2},${(sy+ey)/2-12} ${ex},${ey}`); path.setAttribute('stroke','rgba(245,166,35,0.5)'); path.setAttribute('stroke-width','2'); path.setAttribute('fill','none'); path.setAttribute('stroke-dasharray','4 3'); svg.appendChild(path); }); } layout(); window.addEventListener('resize',layout); }
+function openModal(idx){ let f=frameworks[idx]; document.getElementById('modal-title').innerHTML=f.name+' Framework'; document.getElementById('modal-body').innerHTML=`<div class="modal-section"><div class="modal-section-label">📖 Full Form</div><p><strong>${f.full}</strong></p></div><div class="modal-section"><div class="modal-section-label">💡 Explanation</div><p>${f.meaning}</p></div><div class="modal-section"><div class="modal-section-label">🎯 Use Cases</div><p>${f.useCases}</p></div><div class="modal-section"><div class="modal-section-label">✍️ Ready Prompt</div><div class="modal-prompt-box" style="background:#00000040; padding:0.8rem; border-radius:12px;">${f.prompt}</div></div>`; document.getElementById('modal-bg').classList.add('open'); }
+document.getElementById('modal-close').addEventListener('click',()=>document.getElementById('modal-bg').classList.remove('open'));
+document.getElementById('modal-bg').addEventListener('click',e=>{if(e.target===document.getElementById('modal-bg')) document.getElementById('modal-bg').classList.remove('open');});
+
+updateAll(); s10Start(); renderSafetyTimeline();
+</script>
+</body>
+  </html>
