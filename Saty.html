@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>AI Deep Dive | Observe with Satyam</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --teal: #00d4c8;
+      --teal-dim: #00a89e;
+      --gold: #ffd166;
+      --gold-dim: #f5a623;
+      --slate: #0f172a;
+      --slate-mid: #1e293b;
+      --slate-light: #334155;
+      --text: #e2e8f0;
+      --text-dim: #94a3b8;
+      --card-bg: rgba(30, 41, 59, 0.8);
+      --border: rgba(0, 212, 200, 0.18);
+      --danger: #ef4444;
+      --success: #10b981;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+      background: var(--slate);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    body::before {
+      content: ''; position: fixed; inset: 0; z-index: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+    }
+    header { position: sticky; top: 0; z-index: 100; background: rgba(15,23,42,0.85); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); padding: 0 2rem; }
+    .header-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 64px; gap: 1rem; }
+    .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .brand-icon { width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, var(--teal), var(--teal-dim)); display: flex; align-items: center; justify-content: center; font-size: 1rem; color: var(--slate); font-weight: 800; box-shadow: 0 0 12px rgba(0,212,200,0.3); }
+    .brand-name { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 800; color: var(--text); }
+    .brand-name span { color: var(--teal); }
+    .socials { display: flex; gap: 1rem; }
+    .socials a { color: var(--text-dim); font-size: 1rem; transition: color 0.2s, transform 0.2s; }
+    .socials a:hover { color: var(--teal); transform: translateY(-1px); }
+    
+    .tab-nav { max-width: 1200px; margin: 0 auto; padding: 1.5rem 1rem 0; display: flex; gap: 0.5rem; position: relative; z-index: 1; flex-wrap: wrap; justify-content: center;}
+    .tab-btn { padding: 0.6rem 1.4rem; border-radius: 999px; border: 1px solid var(--border); background: transparent; color: var(--text-dim); font-family: 'Space Grotesk', sans-serif; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.25s; display: flex; align-items: center; gap: 0.5rem; }
+    .tab-btn.active { background: var(--teal); color: var(--slate); border-color: var(--teal); box-shadow: 0 0 18px rgba(0,212,200,0.35); }
+    .tab-content { display: none; position: relative; z-index: 1; }
+    .tab-content.active { display: block; }
+    
+    .container { max-width: 1100px; margin: 0 auto; padding: 2rem 1rem 4rem; }
+    .hero { text-align: center; padding: 3rem 0 2rem; }
+    .hero-eyebrow { display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(0,212,200,0.1); border: 1px solid var(--border); color: var(--teal); font-size: 0.8rem; font-weight: 600; padding: 0.4rem 1rem; border-radius: 999px; margin-bottom: 1.2rem; letter-spacing: 0.05em; text-transform: uppercase; }
+    .hero h1 { font-family: 'Syne', sans-serif; font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 800; line-height: 1.1; background: linear-gradient(135deg, #fff 30%, var(--teal)); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 1rem; }
+    
+    .section-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; overflow: hidden; margin-bottom: 1.5rem; backdrop-filter: blur(12px); transition: border-color 0.3s; }
+    .card-header { display: flex; align-items: center; gap: 1rem; padding: 1.2rem 1.5rem; background: rgba(0,0,0,0.2); border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+    .step-badge { width: 32px; height: 32px; border-radius: 10px; background: linear-gradient(135deg, var(--teal), var(--teal-dim)); color: var(--slate); font-weight: 800; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .card-header h2 { font-family: 'Syne', sans-serif; font-size: 1.15rem; font-weight: 700; }
+    .card-body { padding: 1.5rem; }
+    @media(max-width: 640px) { .card-body { padding: 1rem; } }
+    
+    .tokens-row { display: flex; flex-wrap: wrap; gap: 0.6rem; justify-content: center; padding: 1rem 0; }
+    .token { padding: 0.5rem 1.1rem; border-radius: 999px; background: rgba(0,212,200,0.08); border: 1.5px solid rgba(0,212,200,0.25); font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+    .token.selected { background: var(--teal); color: var(--slate); border-color: var(--teal); box-shadow: 0 0 16px rgba(0,212,200,0.4); transform: translateY(-2px); }
+    
+    .qkv-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+    @media(max-width:768px) { .qkv-grid { grid-template-columns: 1fr; } }
+    .qkv-card { background: rgba(0,0,0,0.25); border-radius: 14px; border: 1px solid var(--border); padding: 1rem; }
+    
+    .bar-list { display: flex; flex-direction: column; gap: 0.6rem; width: 100%; }
+    .bar-row { display: flex; align-items: center; gap: 0.75rem; width: 100%; }
+    .bar-label { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; width: 70px; flex-shrink: 0; color: var(--text-dim); }
+    .bar-track { flex: 1; height: 22px; background: rgba(255,255,255,0.06); border-radius: 999px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--teal-dim), var(--teal)); transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    .bar-fill.gold { background: linear-gradient(90deg, #d97706, var(--gold)); }
+    .bar-val { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; width: 45px; text-align: right; flex-shrink: 0; }
+    
+    .heatmap-wrap { overflow-x: auto; padding-bottom: 0.5rem; }
+    .heatmap-grid { display: grid; gap: 4px; min-width: 500px; }
+    .hm-cell { height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; cursor: pointer; border: 1px solid transparent; }
+    
+    .flow-vis { position: relative; padding: 1.5rem 0; min-height: 170px; overflow-x: auto; }
+    .flow-tokens-row { display: flex; justify-content: space-around; position: relative; z-index: 2; min-width: 400px; }
+    .flow-token-box { padding: 0.4rem 0.8rem; border-radius: 10px; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; border: 1.5px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.06); }
+    .flow-token-box.source { border-color: var(--teal); background: rgba(0,212,200,0.15); color: var(--teal); }
+    #flow-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; min-width: 400px;}
+    
+    .sim10-controls { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    .ctrl-btn { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--border); background: transparent; color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .ctrl-btn.primary { background: var(--teal); color: var(--slate); border-color: var(--teal); box-shadow: 0 0 14px rgba(0,212,200,0.35); }
+    .sim10-progress { display: flex; gap: 0.6rem; overflow-x: auto; padding: 0.5rem 0 1rem; margin-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); scrollbar-width: none; }
+    .sim10-progress::-webkit-scrollbar { display: none; }
+    .sim10-phase-seg { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem 1rem; border-radius: 999px; font-size: 0.85rem; white-space: nowrap; color: var(--text-dim); cursor: pointer; transition: all 0.3s ease; }
+    .sim10-phase-seg.done { border-color: rgba(0,212,200,0.5); color: var(--teal); }
+    .sim10-phase-seg.active { background: var(--teal); color: var(--slate); border-color: var(--teal); font-weight: 600; box-shadow: 0 0 12px rgba(0,212,200,0.3); }
+    .sim10-canvas { background: rgba(0,0,0,0.25); border-radius: 12px; padding: 1.5rem; min-height: 250px; display: flex; flex-direction: column; justify-content: center; overflow-x: auto; }
+    .sim10-explain { display: flex; align-items: center; gap: 1rem; margin-top: 1.5rem; padding: 1rem 1.2rem; background: rgba(0,212,200,0.08); border-radius: 12px; border-left: 4px solid var(--teal); }
+    .explain-box { background: rgba(0,212,200,0.06); border: 1px solid rgba(0,212,200,0.2); border-left: 4px solid var(--teal); border-radius: 0 12px 12px 0; padding: 1rem 1.2rem; font-size: 0.9rem; line-height: 1.7; color: var(--text-dim); }
+    .formula-box { background: var(--slate-mid); border: 1px solid var(--border); border-radius: 16px; padding: 1rem; text-align: center; margin: 1rem 0; font-family: 'JetBrains Mono', monospace; word-break: break-all; }
+    .llm-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.8rem; }
+    .llm-card { background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; text-align: center; }
+    .llm-card-icon { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    .responsive-grid-2 { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+    @media(min-width: 768px) { .responsive-grid-2 { grid-template-columns: 1fr 1fr; } }
+    .link-frameworks-btn { background: rgba(245,166,35,0.15); border: 1px solid var(--gold-dim); border-radius: 40px; padding: 0.6rem 1.4rem; font-weight: 600; color: var(--gold); cursor: pointer; display: inline-flex; align-items: center; gap: 0.6rem; margin-top: 0.8rem; }
+    
+    /* Safety Timeline */
+    .timeline-wrap { position: relative; padding: 2rem 0; margin-top: 1rem; }
+    .timeline-wrap::before { content: ''; position: absolute; top: 0; bottom: 0; left: 24px; width: 2px; background: linear-gradient(to bottom, var(--danger), var(--gold), var(--success)); opacity: 0.5; }
+    @media(min-width: 768px) { .timeline-wrap::before { left: 50%; transform: translateX(-50%); } }
+    .timeline-item { position: relative; margin-bottom: 2rem; display: flex; flex-direction: column; padding-left: 60px; }
+    @media(min-width: 768px) { 
+      .timeline-item { flex-direction: row; padding-left: 0; justify-content: center; align-items: flex-start; }
+      .timeline-item:nth-child(odd) { flex-direction: row-reverse; }
+      .timeline-item:nth-child(odd) .tl-content { text-align: right; }
+    }
+    .tl-marker { position: absolute; left: 12px; top: 0; width: 26px; height: 26px; border-radius: 50%; background: var(--slate); border: 3px solid var(--teal); display: flex; align-items: center; justify-content: center; z-index: 2; transition: all 0.3s; }
+    @media(min-width: 768px) { .tl-marker { left: 50%; transform: translateX(-50%); } }
+    .tl-content { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 1.2rem; width: 100%; max-width: 450px; cursor: pointer; transition: all 0.3s; position: relative; }
+    .tl-content:hover { border-color: var(--gold); transform: translateY(-2px); }
+    @media(min-width: 768px) { .tl-content { margin: 0 40px; } }
+    .tl-step { font-size: 0.75rem; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.3rem; font-weight: 600; }
+    .tl-title { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; justify-content: space-between; }
+    .tl-details { display: none; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1); animation: fadeIn 0.3s ease; }
+    .tl-content.open .tl-details { display: block; }
+    .tl-content.open .chevron { transform: rotate(180deg); }
+    .chevron { transition: transform 0.3s; color: var(--text-dim); }
+    .tl-risks { display: flex; flex-direction: column; gap: 1rem; }
+    .risk-box { font-size: 0.85rem; padding: 0.8rem; border-radius: 10px; line-height: 1.5; }
+    .risk-in { background: rgba(239, 68, 68, 0.1); border-left: 3px solid var(--danger); }
+    .risk-out { background: rgba(16, 185, 129, 0.1); border-left: 3px solid var(--success); }
+    .risk-neutral { background: rgba(0, 212, 200, 0.1); border-left: 3px solid var(--teal); }
+    .risk-title { font-weight: 600; margin-bottom: 0.3rem; display: flex; align-items: center; gap: 0.4rem; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+    
+    /* Concepts tab */
+    .concepts-controls { display: flex; gap: 1rem; justify-content: center; margin: 1rem 0 2rem; flex-wrap: wrap; }
+    .ctrl-toggle { background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 40px; padding: 0.4rem 1rem; display: flex; align-items: center; gap: 0.5rem; cursor: pointer; transition: all 0.2s; }
+    .ctrl-toggle.active { background: var(--teal); color: var(--slate); border-color: var(--teal); }
+    .mindmap-container { position: relative; min-height: 800px; margin: 2rem 0; }
+    .mm-node { position: absolute; background: var(--card-bg); backdrop-filter: blur(12px); border: 1px solid var(--border); border-radius: 20px; padding: 0.8rem 1.2rem; text-align: center; cursor: pointer; transition: all 0.2s; z-index: 2; width: 140px; }
+    .mm-node:hover { transform: scale(1.05); border-color: var(--teal); box-shadow: 0 0 20px rgba(0,212,200,0.3); }
+    .mm-node.center { width: 180px; background: linear-gradient(135deg, #00d4c8, #00a89e); color: var(--slate); font-weight: bold; }
+    .story-mode-container { background: var(--card-bg); border-radius: 20px; padding: 1.5rem; margin-top: 2rem; }
+    .story-step { display: flex; gap: 1.5rem; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; }
+    .story-icon { font-size: 2rem; width: 60px; text-align: center; }
+    .story-text { flex: 1; }
+    .story-text h4 { color: var(--teal); margin-bottom: 0.3rem; }
+    .comparison-table { overflow-x: auto; margin: 1rem 0; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 0.8rem; text-align: left; border-bottom: 1px solid var(--border); }
+    th { color: var(--teal); }
+    
+    /* Workflow story */
+    .workflow-story { max-width: 800px; margin: 0 auto; }
+    .wf-step { background: var(--card-bg); border-radius: 16px; margin-bottom: 1.5rem; padding: 1.2rem; border-left: 4px solid var(--teal); transition: all 0.2s; }
+    .wf-step:hover { transform: translateX(5px); border-left-color: var(--gold); }
+    .wf-step-title { font-size: 1.2rem; font-weight: bold; color: var(--teal); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
+    .wf-step-desc { color: var(--text-dim); line-height: 1.5; }
+    .wf-step-detail { margin-top: 0.8rem; font-size: 0.9rem; background: rgba(0,0,0,0.2); padding: 0.8rem; border-radius: 12px; display: none; }
+    .wf-step.open .wf-step-detail { display: block; }
+    .wf-toggle { cursor: pointer; color: var(--gold); margin-left: 0.5rem; font-size: 0.8rem; }
+    
+    .modal-bg { position: fixed; inset: 0; z-index: 1000; background: rgba(5,13,26,0.8); backdrop-filter: blur(16px); display: flex; align-items: center; justify-content: center; padding: 1rem; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+    .modal-bg.open { opacity: 1; pointer-events: all; }
+    .modal { background: linear-gradient(145deg, #0f1e38, #080f1e); border: 1.5px solid rgba(245,166,35,0.5); border-radius: 28px; max-width: 560px; width: 100%; max-height: 90vh; overflow-y: auto; }
+    .modal-head { padding: 1.5rem; border-bottom: 1px solid rgba(245,166,35,0.2); display: flex; align-items: center; justify-content: space-between; }
+    .modal-close { background: none; border: none; color: #aaa; font-size: 1.2rem; cursor: pointer; }
+    .modal-body { padding: 1.5rem; }
+    .modal-section { margin-bottom: 1.2rem; color: #cbd5e1; }
+    .risk-tag { background: rgba(239,68,68,0.1); border: 1px solid var(--danger); padding: 0.4rem 0.8rem; border-radius: 8px; font-size: 0.85rem; color: #fca5a5; cursor: pointer; transition: all 0.2s; }
+    .risk-tag:hover { background: rgba(239,68,68,0.25); transform: translateY(-1px); }
+    footer { border-top: 1px solid var(--border); padding: 2rem; text-align: center; color: var(--text-dim); }
+  </style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <a class="brand" href="#">
+      <div class="brand-icon">S</div>
+      <span class="brand-name">Observe with <span>Satyam</span></span>
+    </a>
+    <div class="socials">
+      <a href="https://www.instagram.com/" target="_blank"><i class="fab fa-instagram"></i></a>
+      <a href="https://www.linkedin.com/in/satyam-kumar5286o" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+      <a href="https://youtube.com/@observe_with_satyam" target="_blank"><i class="fab fa-youtube"></i></a>
+      <a href="https://t.me/CA_Protracker" target="_blank"><i class="fab fa-telegram-plane"></i></a>
+    </div>
+  </div>
+</header>
+
+<div class="tab-nav">
+  <button class="tab-btn active" id="btn-attn" onclick="switchTab('attn')"><i class="fas fa-brain"></i> Attention Simulator</button>
+  <button class="tab-btn" id="btn-mindmap" onclick="switchTab('mindmap')"><i class="fas fa-project-diagram"></i> Prompt Frameworks</button>
+  <button class="tab-btn" id="btn-safety" onclick="switchTab('safety')"><i class="fas fa-shield-alt"></i> Safety Architecture</button>
+  <button class="tab-btn" id="btn-concepts" onclick="switchTab('concepts')"><i class="fas fa-lightbulb"></i> AI Concepts</button>
+  <button class="tab-btn" id="btn-workflow" onclick="switchTab('workflow')"><i class="fas fa-diagram-project"></i> Agentic AI Story</button>
+</div>
+
+<!-- ========== TAB 1: Attention Simulator ========== -->
+<div class="tab-content active" id="tab-attn">
+  <div class="container">
+    <div class="hero"><div class="hero-eyebrow"><i class="fas fa-bolt"></i> Interactive Deep Dive</div><h1>How Attention Works</h1><p>Click a token. Watch it gather context from every other word — step by step.</p></div>
+    <div class="section-card"><div class="card-header"><div class="step-badge">1</div><h2>Tokenization</h2></div><div class="card-body"><div class="tokens-row" id="tokens-row"></div><div class="explain-box"><strong>Click any token →</strong> dashboard updates.</div></div></div>
+    <div class="section-card"><div class="card-header"><div class="step-badge">2</div><h2>Token Embeddings</h2></div><div class="card-body"><div id="embedding-display" style="font-family:monospace;background:rgba(0,0,0,0.25);border-radius:12px;padding:1rem;"></div></div></div>
+    <div class="section-card"><div class="card-header"><div class="step-badge">3</div><h2>Why Q, K, V?</h2></div><div class="card-body"><div class="qkv-grid"><div class="qkv-card"><div class="qkv-label q" style="color:#a855f7; font-weight:bold;">Q — Query</div><div>"What am I looking for?"</div></div><div class="qkv-card"><div class="qkv-label k" style="color:#eab308; font-weight:bold;">K — Key</div><div>"What do I have to offer?"</div></div><div class="qkv-card"><div class="qkv-label v" style="color:#10b981; font-weight:bold;">V — Value</div><div>"Here's my actual info."</div></div></div></div></div>
+    <div class="section-card"><div class="card-header"><div class="step-badge">4</div><h2>Q,K,V Vectors</h2></div><div class="card-body"><div id="qkv-vectors" class="qkv-grid"></div><div class="formula-box">Q = W<sub>Q</sub>·E , K = W<sub>K</sub>·E , V = W<sub>V</sub>·E</div></div></div>
+    <div class="section-card"><div class="card-header"><div class="step-badge">5</div><h2>Attention Scores — Q·K/√d</h2></div><div class="card-body"><div id="scores-bars" class="bar-list"></div></div></div>
+    <div class="section-card"><div class="card-header"><div class="step-badge">6</div><h2>Attention Probabilities (Softmax)</h2></div><div class="card-body"><div id="softmax-bars" class="bar-list"></div></div></div>
+    <div class="section-card"><div class="card-header"><div class="step-badge">7</div><h2>Attention Flow</h2></div><div class="card-body"><div class="flow-vis" id="flow-vis"><svg id="flow-svg"></svg><div class="flow-tokens-row" id="flow-tokens-row"></div></div></div></div>
+    <div class="section-card"><div class="card-header"><div class="step-badge">8</div><h2>Full Attention Matrix</h2></div><div class="card-body"><div class="heatmap-wrap"><div id="heatmap" class="heatmap-grid"></div></div></div></div>
+    <div class="section-card"><div class="card-header"><div class="step-badge">9</div><h2>Output — Contextualized Embedding</h2></div><div class="card-body"><div id="output-display" style="font-family:monospace;background:rgba(0,0,0,0.25);border-radius:12px;padding:1rem;"></div></div></div>
+    <div class="section-card" id="step10-card"><div class="card-header"><div class="step-badge" style="background:linear-gradient(135deg,#a78bfa,#7c3aed);">10</div><h2>Complete Attention Flow — Animated Visual Pipeline</h2><div style="margin-left:auto;"><select class="speed-select" id="s10-speed" style="background:var(--slate); color:#fff; border:1px solid var(--border); padding:0.3rem;"><option value="2200">Normal</option><option value="1100">Fast</option><option value="3800">Slow</option></select></div></div><div class="card-body"><div class="sim10-controls"><button class="ctrl-btn" id="s10-prev"><i class="fas fa-step-backward"></i></button><button class="ctrl-btn primary" id="s10-play"><i class="fas fa-pause" id="s10-play-icon"></i></button><button class="ctrl-btn" id="s10-next"><i class="fas fa-step-forward"></i></button><button class="ctrl-btn" id="s10-reset" style="width:auto;padding:0 0.9rem;">↺ Reset Focus</button><span id="s10-counter" style="margin-left:auto;">Step 1 / 6</span></div><div class="sim10-progress" id="s10-progress"></div><div class="sim10-canvas" id="s10-canvas"></div><div class="sim10-explain"><div class="sim10-explain-icon" id="s10-icon">⚡</div><div class="sim10-explain-text" id="s10-text"></div></div></div></div>
+    <div class="section-card"><div class="card-header"><div class="step-badge">11</div><h2>From Attention to LLM</h2></div><div class="card-body"><div class="llm-grid"><div class="llm-card"><div class="llm-card-icon">🏗️</div><div>96 Layers</div></div><div class="llm-card"><div class="llm-card-icon">🧠</div><div>Multi-Head</div></div><div class="llm-card"><div class="llm-card-icon">⚡</div><div>Feed-Forward</div></div><div class="llm-card"><div class="llm-card-icon">🔗</div><div>Residuals</div></div></div><div class="formula-box">Attention(Q,K,V)=softmax(QKᵀ/√d)·V</div></div></div>
+    <div class="section-card"><div class="card-header"><div class="step-badge">12</div><h2>How Q&A and Reasoning Work</h2></div><div class="card-body"><p style="color:var(--text-dim);margin-bottom:1.5rem;">LLMs don't "understand" — they predict the next token based on learned patterns.</p><div class="responsive-grid-2"><div class="qkv-card" style="border-left: 4px solid #f87171;"><div class="qkv-label" style="color:#f87171; font-weight:bold;">Direct Answering</div><div>Question → Answer<br><span style="color:var(--text-dim)">Hard jump. Often fails on complex tasks.</span></div></div><div class="qkv-card" style="border-left: 4px solid #34d399;"><div class="qkv-label" style="color:#34d399; font-weight:bold;">Chain-of-Thought</div><div>Question → Step 1 → Step 2 → Answer<br><span style="color:var(--text-dim)">Each step becomes context. Much stronger.</span></div></div></div><div class="explain-box" style="margin-top:1.5rem;"><strong>This is why prompting matters.</strong> Better structure = better pattern-matching.</div><div class="link-frameworks-btn" onclick="switchTab('mindmap')"><i class="fas fa-project-diagram"></i> Explore 9 Prompt Frameworks →</div></div></div>
+  </div>
+  <footer><p>© 2026 Observe with Satyam — AI Deep Dive</p></footer>
+</div>
+
+<!-- ========== TAB 2: Prompt Frameworks Mindmap ========== -->
+<div class="tab-content" id="tab-mindmap">
+  <div class="container" style="max-width:1200px;">
+    <div class="hero"><div class="hero-eyebrow" style="color:var(--gold); border-color:var(--gold-dim);"><i class="fas fa-project-diagram"></i> Interactive Mind Map</div><h1>9 Prompt Frameworks</h1><p>Click any node → full explanation + ready prompt</p></div>
+    <div class="mindmap-canvas-wrap" style="position:relative; width:100%; min-height:650px;"><div id="mmCanvas" style="position:relative; width:100%; min-height:650px;"><svg id="mmSvg" style="position:absolute; top:0; left:0; pointer-events:none; z-index:0;"><defs><linearGradient id="lineGrad"><stop offset="0%" stop-color="#f5a623"/><stop offset="100%" stop-color="#ffd166"/></linearGradient></defs></svg><div class="mm-hub" style="position:absolute; z-index:10; width:180px; height:180px; top:50%; left:50%; transform:translate(-50%,-50%); background:radial-gradient(circle at 35% 35%, #ffe066, #f5a623); border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; box-shadow:0 0 0 8px rgba(245,166,35,0.15);"><i class="fas fa-brain" style="font-size:2rem; color:#000;"></i><div class="mm-hub-title" style="font-weight:800; color:#000;">PROMPT<br>FRAMEWORKS</div></div></div></div>
+  </div>
+</div>
+
+<!-- ========== TAB 3: Safety Architecture ========== -->
+<div class="tab-content" id="tab-safety">
+  <div class="container">
+    <div class="hero"><div class="hero-eyebrow" style="color:var(--success); border-color:var(--success);"><i class="fas fa-layer-group"></i> Infrastructure Deep Dive</div><h1 style="background: linear-gradient(135deg, #fff 30%, var(--success)); -webkit-background-clip: text;">AI Safety Layers</h1><p>AI safety is not a single filter. It is a layered system where each stage removes specific risks.</p><div style="margin-top:1rem; font-size:0.9rem;"><strong>Click on any layer to see how it filters risk.</strong></div></div>
+    <div class="timeline-wrap" id="safety-timeline"></div>
+    <div class="section-card" style="margin-top:3rem; border-color: rgba(239,68,68,0.4);"><div class="card-header"><div class="step-badge" style="background:var(--danger); color:white;"><i class="fas fa-exclamation-triangle"></i></div><h2>Residual Risk (The Reality)</h2></div><div class="card-body"><p style="color:var(--text-dim);margin-bottom:1rem;">Even after passing through all 12 layers, no system is perfectly secure. We must always account for residual risks.</p><div style="display:flex; gap:0.8rem; flex-wrap:wrap;" id="residual-risks-container"></div></div></div>
+  </div>
+</div>
+
+<!-- ========== TAB 4: AI Concepts (Expanded) ========== -->
+<div class="tab-content" id="tab-concepts">
+  <div class="container">
+    <div class="hero"><h1>🤖 AI Simplified: From Buzzwords to Understanding</h1><p>Understand how modern AI actually works — visually</p></div>
+    <div class="concepts-controls"><div id="story-mode-btn" class="ctrl-toggle"><i class="fas fa-book-open"></i> Explain Like a Story</div><div id="compare-mode-btn" class="ctrl-toggle"><i class="fas fa-chart-simple"></i> Compare Concepts</div><div id="simplify-mode-btn" class="ctrl-toggle"><i class="fas fa-child"></i> Explain Like I'm 12</div></div>
+    <div id="concepts-mindmap" class="mindmap-container" style="position:relative; min-height:800px;"><div class="mm-node center" style="left:calc(50% - 90px); top:200px;">🧠 AI System</div></div>
+    <div id="story-mode-container" style="display:none;"></div>
+    <div id="compare-table" class="comparison-table" style="display:none;"></div>
+  </div>
+</div>
+
+<!-- ========== TAB 5: Agentic AI Story ========== -->
+<div class="tab-content" id="tab-workflow">
+  <div class="container">
+    <div class="hero"><h1>🤖 How Agentic AI Actually Works</h1><p>A simple, step-by-step story of how AI thinks, acts, and learns.</p></div>
+    <div class="workflow-story" id="workflow-story"></div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modal-bg"><div class="modal"><div class="modal-head"><h2 id="modal-title" style="color:#fff;"></h2><button class="modal-close" id="modal-close"><i class="fas fa-times"></i></button></div><div class="modal-body" id="modal-body"></div></div></div>
+
+<script>
+// ========== GLOBAL SWITCH FUNCTION ==========
+function switchTab(tab){
+  document.querySelectorAll('.tab-content').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el=>el.classList.remove('active'));
+  document.getElementById(`tab-${tab}`).classList.add('active');
+  document.getElementById(`btn-${tab}`).classList.add('active');
+  if(tab==='concepts') initConceptsTab();
+  if(tab==='mindmap') initMindMap();
+  if(tab==='workflow') initWorkflowStory();
+}
+
+// ========== ATTENTION SIMULATOR ==========
+const tokens = ["Satyam", "helps", "you", "upskill", "in", "AI"];
+const embeddings = [[0.8,0.2,0.5,0.9],[0.3,0.7,0.4,0.2],[0.6,0.4,0.8,0.3],[0.4,0.9,0.3,0.7],[0.2,0.3,0.6,0.4],[0.9,0.5,0.2,0.8]];
+const W_Q = [[0.5,0.3,0.2,0.4],[0.2,0.6,0.3,0.1],[0.4,0.2,0.5,0.3],[0.3,0.4,0.2,0.6]];
+const W_K = [[0.4,0.2,0.3,0.1],[0.5,0.3,0.2,0.4],[0.2,0.4,0.6,0.1],[0.3,0.2,0.4,0.5]];
+const W_V = [[0.7,0.1,0.2,0.3],[0.2,0.8,0.1,0.2],[0.3,0.1,0.7,0.2],[0.1,0.2,0.3,0.6]];
+function matVec(e,W){ let r=[0,0,0,0]; for(let i=0;i<4;i++)for(let j=0;j<4;j++) r[i]+=e[j]*W[j][i]; return r.map(v=>+v.toFixed(4));}
+const Qs = embeddings.map(e=>matVec(e,W_Q)), Ks = embeddings.map(e=>matVec(e,W_K)), Vs = embeddings.map(e=>matVec(e,W_V));
+const sqrtD=2;
+function dot(a,b){ return a.reduce((s,v,i)=>s+v*b[i],0);}
+const rawScores = tokens.map((_,i)=>tokens.map((_,j)=>+(dot(Qs[i],Ks[j])/sqrtD).toFixed(4)));
+function softmax(row){ let mx=Math.max(...row), exps=row.map(v=>Math.exp(v-mx)), sum=exps.reduce((a,b)=>a+b,0); return exps.map(v=>+(v/sum).toFixed(4));}
+const attnW = rawScores.map(row=>softmax(row));
+const outputs = tokens.map((_,i)=>{ let out=[0,0,0,0]; for(let j=0;j<tokens.length;j++){ let w=attnW[i][j]; for(let d=0;d<4;d++) out[d]+=w*Vs[j][d]; } return out.map(v=>+v.toFixed(4));});
+let selIdx = 0;
+function renderTokensRow(){ let el=document.getElementById('tokens-row'); if(!el) return; el.innerHTML=tokens.map((t,i)=>`<div class="token ${i===selIdx?'selected':''}" data-i="${i}">${t}</div>`).join(''); document.querySelectorAll('.token').forEach(tok=>tok.addEventListener('click',()=>{selIdx=+tok.dataset.i; updateAll();}));}
+function renderEmbedding(){ let e=embeddings[selIdx]; document.getElementById('embedding-display').innerHTML=`<span style="color:var(--teal)">${tokens[selIdx]}</span> → [${e.map(v=>`<span style="color:var(--gold)">${v}</span>`).join(', ')}]`;}
+function renderQKV(){ let q=Qs[selIdx],k=Ks[selIdx],v=Vs[selIdx]; document.getElementById('qkv-vectors').innerHTML=`<div class="qkv-card"><div class="qkv-label q" style="color:#a855f7;">Q</div><div style="font-family:monospace;">[${q.join(', ')}]</div></div><div class="qkv-card"><div class="qkv-label k" style="color:#eab308;">K</div><div style="font-family:monospace;">[${k.join(', ')}]</div></div><div class="qkv-card"><div class="qkv-label v" style="color:#10b981;">V</div><div style="font-family:monospace;">[${v.join(', ')}]</div></div>`;}
+function renderScores(){ let scores=rawScores[selIdx], mx=Math.max(...scores); document.getElementById('scores-bars').innerHTML=tokens.map((t,i)=>`<div class="bar-row"><div class="bar-label">${t}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.max(2, (scores[i]/mx)*100)}%"></div></div><div class="bar-val">${scores[i]}</div></div>`).join('');}
+function renderSoftmax(){ let probs=attnW[selIdx]; document.getElementById('softmax-bars').innerHTML=tokens.map((t,i)=>`<div class="bar-row"><div class="bar-label">${t}</div><div class="bar-track"><div class="bar-fill gold" style="width:${probs[i]*100}%"></div></div><div class="bar-val">${(probs[i]*100).toFixed(0)}%</div></div>`).join('');}
+function renderFlow(){ let row=document.getElementById('flow-tokens-row'); row.innerHTML=tokens.map((t,i)=>`<div style="text-align:center;"><div class="flow-token-box ${i===selIdx?'source':''}">${t}</div><div style="font-size:0.7rem;">${(attnW[selIdx][i]*100).toFixed(0)}%</div></div>`).join(''); setTimeout(()=>{ let svg=document.getElementById('flow-svg'), vis=document.getElementById('flow-vis').getBoundingClientRect(), boxes=row.querySelectorAll('.flow-token-box'); if(!vis.width) return; let src=boxes[selIdx].getBoundingClientRect(), srcX=src.left+src.width/2-vis.left, srcY=src.top+src.height/2-vis.top; let lines=''; boxes.forEach((box,i)=>{ if(i===selIdx) return; let b=box.getBoundingClientRect(), tx=b.left+b.width/2-vis.left, ty=b.top+b.height/2-vis.top, w=attnW[selIdx][i]; let sw=1+w*12; lines+=`<line x1="${srcX}" y1="${srcY}" x2="${tx}" y2="${ty}" stroke="rgba(0,212,200,${0.2+w*0.8})" stroke-width="${sw}" stroke-linecap="round"/>`; }); svg.innerHTML=lines; }, 10);}
+function renderHeatmap(){ let n=tokens.length, el=document.getElementById('heatmap'); el.style.gridTemplateColumns=`80px repeat(${n},1fr)`; let html=`<div></div>`+tokens.map(t=>`<div style="font-size:0.75rem; text-align:center; color:var(--teal);">${t}</div>`).join(''); tokens.forEach((_,i)=>{ html+=`<div style="font-size:0.75rem;">${tokens[i]}</div>`; tokens.forEach((_,j)=>{ let v=attnW[i][j]; html+=`<div class="hm-cell" data-row="${i}" style="background:rgba(0,212,200,${0.1+v*0.8}); color:${v>0.4?'#000':'#fff'}">${(v*100).toFixed(0)}%</div>`; }); }); el.innerHTML=html; el.querySelectorAll('.hm-cell').forEach(c=>c.addEventListener('click',()=>{selIdx=+c.dataset.row; updateAll();}));}
+function renderOutput(){ let out=outputs[selIdx]; document.getElementById('output-display').innerHTML=`<span style="color:var(--teal)">${tokens[selIdx]}</span> contextual → [${out.map(v=>v.toFixed(3)).join(', ')}]`;}
+const S10_PHASES = [{label:'Input Tokens'},{label:'Q·K·V'},{label:'Dot Scores'},{label:'Softmax'},{label:'Weighted Sum'},{label:'Output'}];
+let s10Phase=0, s10Playing=true, s10Timer=null;
+function s10VecShort(vec){ return `[${vec.slice(0,2).join(', ')}..]`; }
+function buildS10Canvas(){ let canvas=document.getElementById('s10-canvas'); if(!canvas) return; const i=selIdx, probs=attnW[i], scores=rawScores[i], outVec=outputs[i]; const prog=document.getElementById('s10-progress'); prog.innerHTML=S10_PHASES.map((ph,pi)=>`<div class="sim10-phase-seg ${pi<s10Phase?'done':pi===s10Phase?'active':''}" data-phase="${pi}" onclick="setS10Phase(${pi})">${ph.label}</div>`).join(''); document.getElementById('s10-counter').textContent=`Step ${s10Phase+1} / ${S10_PHASES.length}`; if(s10Phase===0){ canvas.innerHTML=`<div>Select token: ${tokens.map((t,ti)=>`<span style="cursor:pointer; padding:0.3rem; border:1px solid ${ti===i?'var(--teal)':'var(--border)'}" data-ti="${ti}">${t}</span>`).join(' ')}</div>`; canvas.querySelectorAll('[data-ti]').forEach(b=>b.addEventListener('click',()=>{selIdx=+b.dataset.ti; updateAll(); buildS10Canvas();})); } else if(s10Phase===1){ canvas.innerHTML=`<div><strong>${tokens[i]}</strong> → Q:${s10VecShort(Qs[i])}, K:${s10VecShort(Ks[i])}, V:${s10VecShort(Vs[i])}</div>`; } else if(s10Phase===2){ canvas.innerHTML=`<div>Scores: ${tokens.map((t,ti)=>`${t}:${scores[ti]}`).join(', ')}</div>`; } else if(s10Phase===3){ canvas.innerHTML=`<div>Attention: ${tokens.map((t,ti)=>`${t}:${(probs[ti]*100).toFixed(0)}%`).join(', ')}</div>`; } else if(s10Phase===4){ canvas.innerHTML=`<div>Weighted sum of V: ${s10VecShort(outVec)}</div>`; } else { canvas.innerHTML=`<div>Output embedding: [${outVec.slice(0,3).join(', ')}..]</div>`; } const texts=["Step 1: Tokens", "Step 2: Q,K,V vectors", "Step 3: Dot product scores", "Step 4: Softmax probabilities", "Step 5: Weighted sum", "Step 6: Contextual output"]; document.getElementById('s10-text').innerHTML=texts[s10Phase]; }
+function setS10Phase(p) { if(s10Timer){ clearInterval(s10Timer); s10Timer=null; } s10Playing=false; document.getElementById('s10-play-icon').className='fas fa-play'; s10Phase=p; buildS10Canvas(); }
+function s10Start(){ if(s10Timer) return; const delay=+document.getElementById('s10-speed').value; s10Timer=setInterval(()=>{ s10Phase=(s10Phase+1)%S10_PHASES.length; buildS10Canvas(); }, delay); }
+function updateAll(){ renderTokensRow(); renderEmbedding(); renderQKV(); renderScores(); renderSoftmax(); renderFlow(); renderHeatmap(); renderOutput(); buildS10Canvas(); }
+document.getElementById('s10-play')?.addEventListener('click',()=>{ s10Playing=!s10Playing; document.getElementById('s10-play-icon').className=s10Playing?'fas fa-pause':'fas fa-play'; s10Playing?s10Start():s10Timer?clearInterval(s10Timer):null; });
+document.getElementById('s10-prev')?.addEventListener('click',()=>{ setS10Phase((s10Phase-1+S10_PHASES.length)%S10_PHASES.length); });
+document.getElementById('s10-next')?.addEventListener('click',()=>{ setS10Phase((s10Phase+1)%S10_PHASES.length); });
+document.getElementById('s10-reset')?.addEventListener('click',()=>{ selIdx=0; s10Phase=0; updateAll(); });
+document.getElementById('s10-speed')?.addEventListener('change',()=>{ if(s10Playing){ if(s10Timer)clearInterval(s10Timer); s10Start(); } });
+
+// ========== SAFETY TIMELINE ==========
+const safetyData = [
+  { step:"Step 1", title:"User Input Enters", icon:"fas fa-keyboard", desc:"Raw prompt enters.", inRisk:"Ambiguous instructions, harmful intent.", outRisk:"None yet." },
+  { step:"Step 2", title:"Interface Layer", icon:"fas fa-desktop", desc:"Input structured.", inRisk:"Blind trust.", outRisk:"Reduces misinterpretation." },
+  { step:"Step 3", title:"Behavior Layer", icon:"fas fa-user-tie", desc:"System defines role and boundaries.", inRisk:"Scope drift.", outRisk:"Instruction hierarchy prevents manipulation." },
+  { step:"Step 4", title:"Safety Layer", icon:"fas fa-shield-virus", desc:"Guardrails filter harmful content.", inRisk:"Hate speech, illegal activities.", outRisk:"Blocked or neutralized." },
+  { step:"Step 5", title:"Model Layer", icon:"fas fa-brain", desc:"Core intelligence processes input.", inRisk:"Low intelligence.", outRisk:"Advanced reasoning." },
+  { step:"Step 6", title:"Processing", icon:"fas fa-cogs", desc:"Tokens processed, attention calculated.", inRisk:"Context loss.", outRisk:"Structured output." },
+  { step:"Step 7", title:"Reliability Layer", icon:"fas fa-check-double", desc:"Grounds responses in verified data.", inRisk:"Hallucination.", outRisk:"RAG prevents false confidence." },
+  { step:"Step 8", title:"Tool Integration", icon:"fas fa-tools", desc:"API calls, web search.", inRisk:"Outdated knowledge.", outRisk:"Real-time data." },
+  { step:"Step 9", title:"Memory Management", icon:"fas fa-memory", desc:"Session and user memory.", inRisk:"Repetition.", outRisk:"Continuity." },
+  { step:"Step 10", title:"Transparency Layer", icon:"fas fa-search", desc:"Exposes sources.", inRisk:"Black box problem.", outRisk:"Builds trust." },
+  { step:"Step 11", title:"Monitoring & Audit", icon:"fas fa-chart-line", desc:"Logs interactions.", inRisk:"Undetected abuse.", outRisk:"Patches exploits." },
+  { step:"Step 12", title:"Human Oversight", icon:"fas fa-user-shield", desc:"Human-in-the-loop.", inRisk:"Edge-case failures.", outRisk:"Accountability." }
+];
+function renderSafetyTimeline(){ let container=document.getElementById('safety-timeline'); if(!container) return; let html=''; safetyData.forEach((item,idx)=>{ html+=`<div class="timeline-item"><div class="tl-marker"><i class="${item.icon}"></i></div><div class="tl-content" onclick="this.classList.toggle('open')"><div class="tl-step">${item.step}</div><div class="tl-title">${item.title} <i class="fas fa-chevron-down chevron"></i></div><p>${item.desc}</p><div class="tl-details"><div class="tl-risks"><div class="risk-box risk-in"><div class="risk-title"><i class="fas fa-exclamation-circle"></i> Incoming Risks</div>${item.inRisk}</div><div class="risk-box ${idx===0?'risk-neutral':'risk-out'}"><div class="risk-title"><i class="fas fa-shield-alt"></i> ${idx===0?'Status':'Risks Eliminated'}</div>${item.outRisk}</div></div></div></div></div>`; }); container.innerHTML=html; }
+const residualRisks = ["Hallucinations","Model Bias","Zero-Day Jailbreaks","Overblocking","Prompt Injection"];
+function renderResidualRisks(){ let container=document.getElementById('residual-risks-container'); if(!container) return; container.innerHTML=residualRisks.map(r=>`<div class="risk-tag" data-risk="${r}">${r}</div>`).join(''); document.querySelectorAll('.risk-tag').forEach(tag=>tag.addEventListener('click',()=>{ let risk=tag.dataset.risk; document.getElementById('modal-title').innerHTML=`Residual Risk: ${risk}`; document.getElementById('modal-body').innerHTML=`<div class="modal-section"><p>${risk} explanation: Even with safety layers, ${risk.toLowerCase()} can still occur due to model limitations or novel attacks.</p></div>`; document.getElementById('modal-bg').classList.add('open'); })); }
+
+// ========== PROMPT FRAMEWORKS ==========
+const frameworks = ["RACE","CLEAR","5W1H","PASTOR","STAR","FAB","RISE","GROW","SOAP"];
+const frameworkDetails = {
+  "RACE": "Role, Action, Context, Expectation - defines AI's persona, task, situation, and output format.",
+  "CLEAR": "Context, Learn, Evaluate, Action, Review - perfect for deep learning and exam prep.",
+  "5W1H": "What, Why, Who, When, Where, How - covers all angles of a topic or decision.",
+  "PASTOR": "Problem, Amplify, Story, Transformation, Offer, Response - storytelling framework for viral content.",
+  "STAR": "Situation, Task, Action, Result - for behavioral interview answers.",
+  "FAB": "Feature, Advantage, Benefit - translates features into personal benefits.",
+  "RISE": "Role, Identify, Steps, Expectation - for editing and improving content.",
+  "GROW": "Goal, Reality, Options, Will - turns vague goals into actionable plans.",
+  "SOAP": "Subject, Objective, Action, Plan - professional updates and emails."
+};
+function initMindMap(){ let canvas=document.getElementById('mmCanvas'); if(!canvas) return; canvas.querySelectorAll('.mm-node').forEach(el=>el.remove()); let hub=canvas.querySelector('.mm-hub'); if(!hub) return; let nodes=frameworks.map((fw,idx)=>{ let node=document.createElement('div'); node.className='mm-node'; node.style.position='absolute'; node.innerHTML=`<div class="mm-node-name">${fw}</div><div class="mm-node-form">Framework</div><div class="mm-node-cta">Click to view</div>`; node.onclick=()=>{ document.getElementById('modal-title').innerHTML=`${fw} Framework`; document.getElementById('modal-body').innerHTML=`<div class="modal-section"><p>${frameworkDetails[fw]}</p><div class="modal-prompt-box">Example prompt: Use ${fw} to structure your request for better results.</div></div>`; document.getElementById('modal-bg').classList.add('open'); }; canvas.appendChild(node); return node; }); function layout(){ let w=canvas.offsetWidth, h=canvas.offsetHeight, cx=w/2, cy=h/2, radius=Math.min(w*0.35, h*0.35, 280), step=(Math.PI*2)/nodes.length; if(window.innerWidth<=800){ nodes.forEach(node=>{ node.style.position='relative'; node.style.left='auto'; node.style.top='auto'; node.style.margin='0.5rem auto'; }); return; } nodes.forEach((node,i)=>{ let angle=i*step-Math.PI/2, nw=node.offsetWidth||220, nh=node.offsetHeight||100, x=cx+radius*Math.cos(angle)-nw/2, y=cy+radius*Math.sin(angle)-nh/2; node.style.position='absolute'; node.style.left=x+'px'; node.style.top=y+'px'; }); } setTimeout(layout,100); window.addEventListener('resize',layout); }
+
+// ========== CONCEPTS TAB (Expanded) ==========
+const conceptDetails = {
+  "AI System": { what: "The whole AI ecosystem that understands, reasons, and acts.", problem: "Complexity", solution: "Visual map." },
+  "LLM": { what: "Large Language Model: a giant AI trained on text to predict next words.", problem: "AI didn't understand language before.", solution: "LLMs learn patterns from billions of texts." },
+  "Machine Learning": { what: "AI learns from examples instead of being explicitly programmed.", problem: "Hard-coding rules for every task is impossible.", solution: "Show examples, let the system learn patterns." },
+  "AI Agent": { what: "AI that can decide what to do and take actions.", problem: "LLMs only answer, they don't act.", solution: "Agents plan, choose tools, and execute." },
+  "Agentic AI": { what: "AI that autonomously iterates and improves until goal is achieved.", problem: "One-shot answers are often wrong.", solution: "Self-reflection, retrying, learning from feedback." },
+  "RAG": { what: "Retrieval-Augmented Generation: AI searches external knowledge before answering.", problem: "LLMs are outdated or hallucinate.", solution: "Query → Search → Grounded Answer." },
+  "MCP": { what: "Model Context Protocol: a standard way to connect AI to tools and data safely.", problem: "Every tool had its own integration mess.", solution: "One unified interface." },
+  "Tools": { what: "External capabilities like web search, code execution.", problem: "AI is just a text generator.", solution: "Now AI can DO things." },
+  "Memory": { what: "AI remembers past conversations and context.", problem: "Each chat starts fresh.", solution: "Short-term and long-term memory." },
+  "Prompt": { what: "The instruction you give to guide AI's output.", problem: "Vague prompts get vague answers.", solution: "Structured prompts get precise results." }
+};
+function showConceptExplanation(concept){ let d=conceptDetails[concept]||{what:concept,problem:"",solution:""}; document.getElementById('modal-title').innerHTML=concept; document.getElementById('modal-body').innerHTML=`<div class="modal-section"><strong>What it is:</strong> ${d.what}</div><div class="modal-section"><strong>Problem it solves:</strong> ${d.problem}</div><div class="modal-section"><strong>How it works:</strong> ${d.solution}</div>`; document.getElementById('modal-bg').classList.add('open'); }
+function initConceptsTab(){ let container=document.getElementById('concepts-mindmap'); if(!container) return; container.innerHTML='<div class="mm-node center" style="left:calc(50% - 90px); top:200px;">🧠 AI System</div>'; let nodes=[{name:"LLM",top:"80px",left:"calc(50% - 280px)"},{name:"Machine Learning",top:"80px",left:"calc(50% + 140px)"},{name:"AI Agent",top:"300px",left:"calc(50% - 320px)"},{name:"Agentic AI",top:"300px",left:"calc(50% + 180px)"},{name:"RAG",top:"480px",left:"calc(50% - 280px)"},{name:"MCP",top:"480px",left:"calc(50% + 140px)"},{name:"Tools",top:"620px",left:"calc(50% - 280px)"},{name:"Memory",top:"620px",left:"calc(50% + 140px)"},{name:"Prompt",top:"760px",left:"calc(50% - 70px)"}]; nodes.forEach(n=>{ let div=document.createElement('div'); div.className='mm-node'; div.style.top=n.top; div.style.left=n.left; div.innerHTML=n.name; div.onclick=()=>showConceptExplanation(n.name); container.appendChild(div); }); let center=container.querySelector('.mm-node.center'); if(center) center.onclick=()=>showConceptExplanation("AI System"); let storySteps=[{icon:"🗣️",title:"1. User Asks",text:"You type something."},{icon:"🧠",title:"2. LLM (Brain)",text:"AI tries to answer from what it knows."},{icon:"📚",title:"3. RAG (Look Up)",text:"AI searches documents for current facts."},{icon:"🤖",title:"4. AI Agent",text:"Decides if it needs to use tools."},{icon:"🔄",title:"5. Agentic AI",text:"If first answer fails, it tries again."},{icon:"🔌",title:"6. MCP",text:"Standard connector to apps and data."},{icon:"🛠️",title:"7. Tools",text:"Now AI can send emails, run code."},{icon:"🧠",title:"8. Memory",text:"Remembers past conversation."},{icon:"📤",title:"9. Final Output",text:"Structured, accurate answer."}]; document.getElementById('story-mode-container').innerHTML=`<div class="story-mode-container">${storySteps.map(s=>`<div class="story-step"><div class="story-icon">${s.icon}</div><div class="story-text"><h4>${s.title}</h4><p>${s.text}</p></div></div>`).join('')}</div>`; let compareHtml=`<table><thead><tr><th>Concept</th><th>What it does</th></tr></thead><tbody>${Object.entries(conceptDetails).map(([k,v])=>`<tr><td>${k}</td><td>${v.what}</td></tr>`).join('')}</tbody></table>`; document.getElementById('compare-table').innerHTML=compareHtml; let storyBtn=document.getElementById('story-mode-btn'), compareBtn=document.getElementById('compare-mode-btn'), simplifyBtn=document.getElementById('simplify-mode-btn'), mmDiv=document.getElementById('concepts-mindmap'), storyDiv=document.getElementById('story-mode-container'), compareDiv=document.getElementById('compare-table'); function reset(){ mmDiv.style.display=''; storyDiv.style.display='none'; compareDiv.style.display='none'; storyBtn.classList.remove('active'); compareBtn.classList.remove('active'); } storyBtn.onclick=()=>{ reset(); mmDiv.style.display='none'; storyDiv.style.display='block'; storyBtn.classList.add('active'); }; compareBtn.onclick=()=>{ reset(); mmDiv.style.display='none'; compareDiv.style.display='block'; compareBtn.classList.add('active'); }; simplifyBtn.onclick=()=>{ let simple=simplifyBtn.classList.toggle('active'); if(simple){ let texts=document.querySelectorAll('.story-text p'); texts.forEach(p=>p.innerHTML=p.innerHTML.replace(/Retrieval-Augmented Generation/g,'looks up info').replace(/Model Context Protocol/g,'plug-and-play')); } else location.reload(); }; reset(); }
+
+// ========== WORKFLOW STORY ==========
+const workflowSteps = [
+  { title: "1. User Input", desc: "You ask a question or give a task. Example: 'Book a flight to Paris next Friday.'", detail: "The system captures your intent, but it may be ambiguous or incomplete." },
+  { title: "2. Agent Brain (LLM)", desc: "The AI's core reasoning engine understands your request and starts planning.", detail: "It uses a Large Language Model to interpret language and generate a plan." },
+  { title: "3. Planning Engine", desc: "Breaks your complex request into smaller steps. (e.g., search flights → compare prices → book)", detail: "This prevents the AI from jumping to a wrong answer without thinking." },
+  { title: "4. Routing Layer", desc: "Decides which tool or data source is needed. Options: RAG (search info), MCP (connect to apps), Tools (execute actions).", detail: "It chooses the right path based on your request." },
+  { title: "5. RAG System", desc: "If you need current information, AI searches a database or the web to get accurate facts.", detail: "This eliminates hallucinations and outdated knowledge." },
+  { title: "6. MCP Layer", desc: "Standard interface to safely connect to external systems like Slack, databases, or APIs.", detail: "Without MCP, each integration would be custom and insecure." },
+  { title: "7. Tools & Skills", desc: "AI can now actually DO things: send emails, run code, fetch live data, control smart devices.", detail: "This turns AI from a talker into a doer." },
+  { title: "8. Memory System", desc: "Remembers previous conversations and user preferences so it doesn't repeat itself.", detail: "Short-term for session, long-term for user profile." },
+  { title: "9. Safety Layer", desc: "Filters harmful requests, blocks hate speech, prevents illegal instructions.", detail: "Guardrails ensure responsible AI behavior." },
+  { title: "10. Output Generator", desc: "Formats the final answer in a clear, structured way (text, JSON, markdown).", detail: "Makes the response easy to read and use." },
+  { title: "11. Evaluation Layer", desc: "Checks if the answer is accurate, relevant, and safe.", detail: "If it fails, it can trigger a retry or flag for human review." }
+];
+function initWorkflowStory(){ let container=document.getElementById('workflow-story'); if(!container) return; container.innerHTML=workflowSteps.map(step=>`<div class="wf-step"><div class="wf-step-title"><i class="fas fa-chevron-right wf-toggle" style="cursor:pointer;"></i> ${step.title}</div><div class="wf-step-desc">${step.desc}</div><div class="wf-step-detail">${step.detail}</div></div>`).join(''); document.querySelectorAll('.wf-step').forEach(step=>{ let toggle=step.querySelector('.wf-toggle'); let detail=step.querySelector('.wf-step-detail'); toggle.addEventListener('click',()=>{ detail.style.display=detail.style.display==='block'?'none':'block'; toggle.classList.toggle('fa-chevron-down'); }); }); }
+
+// ========== INITIALIZE ==========
+updateAll(); s10Start(); renderSafetyTimeline(); renderResidualRisks();
+window.addEventListener('load',()=>{ switchTab('attn'); });
+document.getElementById('modal-close')?.addEventListener('click',()=>document.getElementById('modal-bg').classList.remove('open'));
+document.getElementById('modal-bg')?.addEventListener('click',e=>{if(e.target===document.getElementById('modal-bg')) document.getElementById('modal-bg').classList.remove('open');});
+</script>
+</body>
+  </html>
